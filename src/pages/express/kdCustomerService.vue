@@ -161,6 +161,15 @@
             prop="handledNum"
             label="完结工单数">
           </el-table-column>
+          <el-table-column label="分配" align="center">
+            <template slot-scope="scope">
+              <el-button
+                v-if="scope.row.display !== 1"
+                size="mini"
+                type="danger"
+                @click="distributionUser(scope.row)">分配客户</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <div class="kd-customer-content clearfix" v-else>
@@ -556,6 +565,63 @@
         </el-card>
       </div>
     </div>
+
+    <el-dialog :visible.sync="transferUser" @close="noUserListData" :title="user.name" center width="65%">
+
+      <el-row>
+        <el-col :span="8"><div class="grid-content bg-purple">
+          <el-card class="box-card">
+            <div slot="header" class="clearfix">
+              <span>已绑定的客户:{{usersListBinding.length}}位</span>
+            </div>
+            <div style="overflow:auto;height: 350px;">
+            <div v-for="o in usersListBinding" :key="o.id" >
+
+              <el-row>
+                <el-col :span="18">{{o.name}}</el-col>
+                <el-col :span="6"><el-button type="text" icon="el-icon-error" @click="deleteCustomerUser(o.id)" size="mini">解绑</el-button></el-col>
+              </el-row>
+            </div>
+            </div>
+          </el-card>
+        </div></el-col>
+        <el-col :span="16">
+          <div style="margin-left: 15%">
+            <!--<p style="font: 16px Extra large;font-weight: bold;text-align: center"><i class="el-icon-edit"></i>请选择需转移的客户归属的分支</p>-->
+            <div  style="padding-top: 30px;padding-bottom: 15px;margin-left: 0%" >
+              选择分支：
+              <el-cascader
+                expand-trigger="hover"
+                :props="defaultProps"
+                :options="expressUsersList"
+                :show-all-levels="false"
+                filterable
+                :change-on-select="true"
+                v-model="selectedUserOptions"
+                @change="handleChangeExpressUsersList">
+              </el-cascader>
+            </div>
+            <!--<p style="font: 16px Extra large;font-weight: bold"><i class="el-icon-edit"></i>请选择需移动的客户</p>-->
+            <div style="padding-top: 20px;padding-bottom: 35px">
+              <el-transfer
+                filterable
+                filter-placeholder="请输入客户拼音"
+                :titles="['客户', '已选客户']"
+                v-model="valueUser"
+                :props="UserListProps"
+                :data="UserListData">
+              </el-transfer>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="noUserListData" size="small">取 消</el-button>
+        <el-button type="primary" @click="yesUserListData()"  size="small">确 定</el-button>
+      </div>
+    </el-dialog>
     <el-dialog
       title="转发工单"
       :visible.sync="dialogVisible"
@@ -640,6 +706,25 @@
     name: "customerService",
     data() {
       return {
+        transferUser:false,
+        usersListBinding:[],
+        defaultProps: {
+          children: 'sysUserInfos',
+          label: 'name',
+          value: 'id',
+
+        },
+        user:'',
+        expressUsersList:[],
+        selectedUserOptions:[],
+        UserListData:[],
+        valueUser:[],
+        UserListProps:{
+          label: 'name',
+          key: 'id',
+          pinyin: 'name',
+          disabled:'status'
+        },
         handleErrorVal:'',
         replyMap:{},
         replyServiceList:[],
@@ -730,6 +815,141 @@
       };
     },
     methods: {
+      handleChangeExpressUsersList(value){
+        if(value.length<1){
+          value=[-1]
+        }
+        let id = value[value.length - 1]
+        $axios.request({
+          url: '/express/customerUser/branchUsers/' +id,
+          method: 'get',
+          _this: this,
+          statu: 1,
+          success: res => {
+            let redata = res.data;
+            console.log(redata)
+            redata.forEach(v=>{
+              v.status==1? v.status=true: v.status=false
+            })
+            console.log(redata)
+            this.UserListData = redata
+          },
+          fail: r => {
+            console.log(r)
+          }
+        })
+      },
+      noUserListData(){
+        this.transferUser = false;
+        //需要转移
+        this.selectedUserOptions=[]
+        this.UserListData=[]
+        this.valueUser=[]
+      },
+      //解绑
+      deleteCustomerUser(id){
+        $axios.request({
+          url: '/express/customerUser/deleteCustomerUser/'+id,
+          method: 'delete',
+          _this: this,
+          statu: 1,
+          success: res => {
+            this.$message({
+              type: 'success',
+              message: '已解除',
+              duration: 500,
+            });
+            this.getBinding(this.user);
+          },
+          fail: res => {
+            console.log(res);
+          }
+        })
+      },
+      yesUserListData(){
+
+        let user =this.selectedUserOptions
+        if(user.length<1){
+          this.$message({
+            type: 'warning',
+            message: '请选择分支!',
+            duration:800,
+          });
+          return
+        }
+        if(this.valueUser.length<1){
+          this.$message({
+            type: 'warning',
+            message: '请选择转移的客户!',
+            duration:800,
+          });
+          return
+        }
+        const loading = this.$loading({
+          lock: true,
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+        $axios.request({
+          url: '/express/customerUser/addCustomerUser/'+this.valueUser.join()+"/"+this.user.user_id,
+          method: 'post',
+          _this: this,
+          statu: 2,
+          success: res => {
+            this.$message({
+              type: 'success',
+              message: '添加成功!',
+              duration:800,
+            });
+            this.selectedUserOptions=[]
+            this.UserListData=[]
+            this.valueUser=[]
+            this.getBinding(this.user);
+            loading.close();
+          },
+          fail: res => {
+            console.log(res);
+            loading.close();
+          }
+        })
+      },
+      distributionUser(val){
+        this.user = val
+        this.transferUser = true;
+        this.getBranch();
+        this.getBinding(val);
+      },
+      //获取分支
+      getBranch(){
+        $axios.request({
+          url: '/express/branch',
+          method: 'get',
+          _this: this,
+          statu: 1,
+          success: res => {
+            this.expressUsersList = res.data;
+          },
+          fail: res => {
+            console.log(res);
+          }
+        })
+      },
+      //获取绑定客户
+      getBinding(val){
+        $axios.request({
+          url: '/express/customerUser/getCustomerUserList/'+val.user_id,
+          method: 'get',
+          _this: this,
+          statu: 1,
+          success: res => {
+            this.usersListBinding = res.data;
+          },
+          fail: res => {
+            console.log(res);
+          }
+        })
+      },
       serviceDateChange(){
         console.log(this.serviceDate)
         this.getAllReplys()
