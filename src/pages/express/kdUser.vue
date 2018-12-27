@@ -46,6 +46,7 @@
             @click="() => zzw(node, data)">
           </el-button>
           <el-button
+            v-if="display"
             @click.stop
             type="text"
             size="mini"
@@ -74,20 +75,41 @@
         </el-button>
       </div>
       <div v-if="platformId===3" v-loading="infoLoading"  class="kd-user-right-main" >
-        <div class="kd-user-right-info ">
-          <p> <i class="el-icon-document"></i> &nbsp;公司名称：{{userInfoData.companyName}}</p>
-          <p><i class="el-icon-location-outline"></i> &nbsp;公司地址：{{userInfoData.address}}</p>
-          <p><i class="el-icon-location-outline"></i> &nbsp;所在省市区：{{userInfoData.province}}{{userInfoData.city}}{{userInfoData.area}}</p>
-          <p> <i class="el-icon-phone-outline"></i>&nbsp;联系号码：{{userInfoData.telephone}}</p>
-          <p><i class="icon-addressbook"></i> &nbsp;联系人：{{userInfoData.personInCharge}}</p>
-          <p><i class="el-icon-message"></i> &nbsp;邮箱：{{userInfoData.email}}</p>
-          <p> <i class="el-icon-document"></i>&nbsp;账号：{{username}}</p>
-          <p> <i class="el-icon-document"></i>&nbsp;昵称：{{userInfoData.name}}</p>
-          <p><i class="el-icon-date"></i> &nbsp;注册时间：{{userInfoData.createTime}}</p>
-          <el-button  type="success"  @click="passwordReset()" size="mini">
-            重置密码
-          </el-button>
-        </div>
+        <el-row>
+          <el-col :span="14">
+            <div class="kd-user-right-info ">
+              <p> <i class="el-icon-document"></i> &nbsp;公司名称：{{userInfoData.companyName}}</p>
+              <p><i class="el-icon-location-outline"></i> &nbsp;公司地址：{{userInfoData.address}}</p>
+              <p><i class="el-icon-location-outline"></i> &nbsp;所在省市区：{{userInfoData.province}}{{userInfoData.city}}{{userInfoData.area}}</p>
+              <p> <i class="el-icon-phone-outline"></i>&nbsp;联系号码：{{userInfoData.telephone}}</p>
+              <p><i class="icon-addressbook"></i> &nbsp;联系人：{{userInfoData.personInCharge}}</p>
+              <p><i class="el-icon-message"></i> &nbsp;邮箱：{{userInfoData.email}}</p>
+              <p> <i class="el-icon-document"></i>&nbsp;账号：{{username}}</p>
+              <p> <i class="el-icon-document"></i>&nbsp;昵称：{{userInfoData.name}}</p>
+              <p><i class="el-icon-date"></i> &nbsp;注册时间：{{userInfoData.createTime}}</p>
+              <el-button  type="success"  @click="passwordReset()" size="mini">
+                重置密码
+              </el-button>
+            </div>
+          </el-col>
+          <el-col :span="10">
+            <div style="width: 70%;margin-top: 30px;"></div>
+            <el-card shadow="always">
+              <span style="font-weight: bold;font-size: 16px;">预付面单费：</span>
+              <el-input
+                style="width: 40%"
+                placeholder="请输入金额"
+                v-model="money"
+                :disabled="isMoney"
+                size="small"
+              @blur="updateMoney">
+                <template slot="append">元/单</template>
+              </el-input>
+              <el-button type="text" icon="el-icon-edit" class="fr" @click="isMoney = false" v-if="isMoney">修改</el-button>
+            </el-card>
+          </el-col>
+        </el-row>
+
         <div class="kd-user-right-change">
           <span class="iconfont icon-addressbook_fill  kd-user-title">绑定客户账单店铺名称</span>
         </div>
@@ -118,7 +140,7 @@
         <div class="kd-user-right-change  clearfix">
           <span class="iconfont icon-addressbook_fill  kd-user-title">添加特殊定价组</span>
 
-          <el-button type="primary" size="mini"  @click="specialDialogFormVisible=true">添加关键词</el-button>
+          <el-button type="primary" size="mini"  @click="specialDialogFormVisible=true" v-if="display">添加关键词</el-button>
           <br>
           <br>
           <el-tabs v-model="specialCityListValue" type="border-card" @tab-click="specialHandleClick">
@@ -251,12 +273,12 @@
         <div class="kd-user-right-change  clearfix">
           <span class="iconfont icon-addressbook_fill  kd-user-title">添加定价组</span>
 
-          <el-button type="primary"  size="mini"  @click="testAddCalculationBtn">批量添加定价组</el-button>
-          <el-button type="primary"  size="mini"  @click="testCalculationBtn">试算定价</el-button>
+          <el-button type="primary"  size="mini"  @click="testAddCalculationBtn" v-if="display">批量添加定价组</el-button>
+          <el-button type="primary"  size="mini"  @click="testCalculationBtn" >试算定价</el-button>
 
-          <el-button type="primary"  size="mini"  @click="testExcelCalculationBtn">定价表格上传</el-button>
+          <el-button type="primary"  size="mini"  @click="testExcelCalculationBtn" v-if="display">定价表格上传</el-button>
 
-          <el-button type="primary" class="fr" size="mini" v-if="addStatus" @click="appendPricingGroup">以其他客户定价为模板增加</el-button>
+          <el-button type="primary" class="fr" size="mini" v-if="addStatus&&display" @click="appendPricingGroup" >以其他客户定价为模板增加</el-button>
           <el-select v-model="addUserClassSelect" filterable placeholder="请选择" v-if="!addStatus" size="small" class="fr"
                      @change="appendPricingGroupChange">
             <el-option
@@ -392,10 +414,10 @@
               </div>
               <div class="kd-user-collapse-btn  clearfix">
                 <el-button size="small" type="primary" style="margin-top: 10px"
-                           v-if="firstTableData.length>0&&replaceStatus===false" @click="replacePrice(1)">修改
+                           v-if="firstTableData.length>0&&replaceStatus===false&&display" @click="replacePrice(1)">修改
                 </el-button>
                 <el-button size="small" type="primary" style="margin-top: 10px"
-                           v-if="firstTableData.length===0&&replaceStatus===false" @click="replacePrice(1)">增加
+                           v-if="firstTableData.length===0&&replaceStatus===false&&display" @click="replacePrice(1)">增加
                 </el-button>
                 <el-button size="small" type="primary" v-if="replaceStatus===true" style="margin-top: 10px"
                            @click="submitPrice(firstTableData,thenTableData,1)">提交
@@ -561,7 +583,7 @@
     <el-dialog :visible.sync="excelCalculation" title="定价表格上传"  @close='closeDialog'>
       <el-row>
         <el-col :span="11">
-          <a href="http://www.funwl.com:8090/total/定价模板.xlsx" target="_blank">
+          <a href="http://www.funwl.com:8090/total/template.xlsx" target="_blank">
             <img src="../../assets/images/excel.png" style="height: 130px;width: 100px;margin-left: 120px;margin-top:13px;text-align: center" alt="" >
             <p style="width:200px;margin:0 auto;color: #3a8ee6;text-decoration:underline">点击下载定价模板表格</p>
           </a>
@@ -763,7 +785,7 @@
             <el-input v-model="ruleForm2.personInCharge" placeholder="请输入用户公司负责人"
                       prefix-icon="iconfont icon-ren"></el-input>
           </el-form-item>
-          <el-form-item label="机构名称" prop="typeName" class="fn-user-form-item">
+          <!--<el-form-item label="机构名称" prop="typeName" class="fn-user-form-item">
             <el-input v-model="ruleForm2.typeName" placeholder="如：支付宝/微信/宁波银行"
                       prefix-icon="iconfont icon-ren"></el-input>
           </el-form-item>
@@ -774,7 +796,7 @@
           <el-form-item label="付款账号" prop="paymentAccount" class="fn-user-form-item">
             <el-input v-model="ruleForm2.paymentAccount" placeholder="请输入付款账号"
                       prefix-icon="iconfont icon-ren"></el-input>
-          </el-form-item>
+          </el-form-item>-->
         </el-form>
       </div>
       <div class="register" v-if="radio==='表格上传客户'">
@@ -888,6 +910,9 @@
         }
       };
       return {
+        isMoney:true,
+        money:0,
+
         djCenterDialogVisible:false,
         djVal:'',
         radioYes:'2',
@@ -940,11 +965,12 @@
 
         radio: '客户',
         dialogFormVisible: false,
+        display:sessionStorage.getItem('funwlDisplay')==1?true:false,
         rules1: {
           name: [
             {required: true, message: '分支名不能为空哦！', trigger: 'change'}
           ],
-          payee: [
+          /*payee: [
             {required: true, message: '账户名不能为空哦！', trigger: 'change'}
           ],
           paymentAccount: [
@@ -952,7 +978,7 @@
           ],
           typeName: [
             {required: true, message: '机构名称 不能为空哦！', trigger: 'change'}
-          ],
+          ],*/
           personInCharge: [
             {required: true, message: '用户公司负责人不能为空哦！', trigger: 'change'}
           ],
@@ -1064,6 +1090,56 @@
       }
     },
     methods: {
+      getMoney(){
+        $axios.request({
+          url:  '/express/pricingGroup/getPrepaid/'+this.id,
+          method: 'get',
+          _this: this,
+          statu: 1,
+          success: res => {
+            console.log(1231454)
+            console.log(res)
+            if(res.data==null||res.data==''){
+              this.money=0
+            }else{
+              this.money=res.data.money
+            }
+          },
+          fail: res => {
+            console.log(res);
+          }
+        })
+      },
+      updateMoney(){
+        let money = this.money;
+        let re = /^[0-9]+.?[0-9]*$/;
+        if(!re.test(money)){
+          this.money=0;
+          this.$message.error({
+            message: '请输入数字',
+            duration:1000,
+          });
+          return
+        }
+        $axios.request({
+          url: '/express/pricingGroup/savePrepaid/'+money+"/"+this.id,
+          method: 'post',
+          _this: this,
+          statu: 2,
+          success: res => {
+            this.$message({
+              message: '成功',
+              type: 'success',
+              duration:1000,
+            });
+            this.isMoney=true
+          },
+          fail: res => {
+            console.log(res);
+
+          }
+        })
+      },
       transferUserBut(){
         this.transferUser = true;
         $axios.request({
@@ -1547,7 +1623,7 @@
               }
             });
             this.thenTableData = res.data.continuedWeight;
-
+            this.activeName=''
             this.priceLoading = false;
           },
           fail:res=>{
@@ -1564,6 +1640,7 @@
         this.getPriceCity();
         this.getHistoryInfo();
         this.getSpecialCityList();
+        this.getMoney();
 
         if (data.platformId === 3) {
           this.platformId = 3
@@ -1584,16 +1661,16 @@
           statu: 1,
           _this: this,
           success: res => {
-            if (res.data) {
-              this.id = b.id;        this.dialogFormVisible = true;
 
+              this.id = b.id;        this.dialogFormVisible = true;
+           /* if (res.data) {
             } else {
               this.$message({
                 type: 'warning',
                 message: '请先填写付款机构',
                 duration:500,
               });
-            }
+            }*/
           },
           fail: r => {
             console.log(r)
@@ -2144,7 +2221,7 @@
 
       //特殊定价组
       specialHandleClick(a,b){
-          this.activeName= '',
+          this.activeName = '',
           this.getSpecialCityInfo();
       },
       addTab(targetName) {
@@ -2382,9 +2459,9 @@
               params = {
                 name: list.name,
                 personInCharge: list.personInCharge,
-                typeName:list.typeName,
+                /*typeName:list.typeName,
                 paymentAccount:list.paymentAccount,
-                payee:list.payee
+                payee:list.payee*/
 
               }
             }
@@ -2480,7 +2557,6 @@
     mounted() {
       this.getCity();
       this.getUserList();
-
     }
   }
 </script>
@@ -2556,7 +2632,7 @@
     p {
       height: 40px;
       display: inline-block;
-      width: 39%;
+      width: 45%;
       font-size: 13px;
     }
   }

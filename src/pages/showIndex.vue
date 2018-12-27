@@ -33,6 +33,35 @@
             </div>
           </el-col>
         </el-row>
+
+        <el-input clearable placeholder="多个单号用英文逗号隔开" v-model="waybill"  type="text"
+                  style="width: 50%;position: absolute;top: 670px;left:25%;z-index: 999" >
+          <template slot="prepend" ><span style="font-weight: bold;font-size: 15px">运单号：</span></template>
+          <el-button slot="append" @click="autonumber" icon="el-icon-search" :loading="loading"></el-button>
+        </el-input>
+      <el-dialog :title="'物流信息('+waybillArr.length+'单)'" :visible.sync="dialogTableVisible">
+        <el-collapse v-model="activeName" accordion  @change="getWaybill">
+          <el-collapse-item  :name="info" v-for="info in waybillArr">
+            <template slot="title">
+              <i class="header-icon el-icon-location"></i>
+              <span style="font-weight: bold;font-size: 15px">运单号:</span>&nbsp;&nbsp;&nbsp;
+              <span style="font-weight: bold;font-size: 16px;color: #909399">{{info}}</span>&nbsp;&nbsp;&nbsp;
+            </template>
+            <div  v-if="information.status==200">
+              <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/le93cd5an8" alt="" width="100%" height="6px">
+              <el-steps direction="vertical" :active="1" process-status="error ">
+                <el-step v-for="(item,index) in information.data" :status="index!=0?'finish ':'error'" icon='el-icon-caret-top' :title="item.context" :description="item.time"></el-step>
+              </el-steps>
+            </div>
+            <div v-else>
+              <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/le93cd5an8" alt="" width="100%" height="6px">
+              <div class="error-img"><img src="../assets/images/error.png" alt="" width="40%" height="200px" style="margin-left: 30%"></div>
+              <p style="margin-left: 30%;color: #F56C6C;font-size: 16px;font-weight: bold">{{information.message}}</p>
+            </div>
+          </el-collapse-item>
+        </el-collapse>
+      </el-dialog>
+
         <div class="show-index-banner">
           <el-carousel :interval="5000" arrow="always"  :height="(screenWidth/(1980/700))+'px'">
             <el-carousel-item >
@@ -265,6 +294,12 @@
         name: "showIndex",
         data(){
           return{
+            waybill:'',
+            waybillArr:[],
+            dialogTableVisible:false,
+            activeName:"1",
+            loading:false,
+            information:'',
             videoData:[
               {
                 src:'http://www.funwl.com:8090/video/khVideo.mp4',
@@ -294,6 +329,59 @@
           }else {
             this.$router.push('/redirect?platId='+val)
           }
+        },
+
+        autonumber(){
+          if(this.waybill==''||this.waybill==null){
+            this.$message.error('请输入运单号');
+            return
+          }
+          this.dialogTableVisible=true
+          this.waybillArr = this.waybill.split(",")
+          this.activeName = this.waybillArr[0]
+          this.getWaybill(this.activeName)
+        },
+        getWaybill(val){
+          if(val==''||val==null){
+            return
+          }
+          this.information=''
+          $axios.request({
+            url:'/public/express/autonumber/'+val,
+            method:'post',
+            statu:2,
+            _this:this,
+            success:res=>{
+              console.log("autonumber")
+              console.log(res)
+              if(res.data.auto.length<1){
+                this.activeName =''
+                this.$message.error('运单号错误或不存在');
+              }else{
+                this.queryNum(val,res.data.auto[0].comCode)
+              }
+            },
+            fail:e=>{
+            }
+          })
+        },
+        queryNum(num,str){
+          $axios.request({
+            url:'/public/express/query/'+str+'/'+num,
+            method:'post',
+            statu:2,
+            _this:this,
+            success:res=>{
+              console.log("query")
+              console.log(res.data)
+              this.information = res.data
+              this.loading=false
+              this.dialogTableVisible=true
+
+            },
+            fail:e=>{
+            }
+          })
         },
         logout(){
           this.$confirm('确定退出?', '提示', {
@@ -349,6 +437,7 @@
         }
       },
       mounted(){
+
           this.indexLoading = true;
         const that = this;
         window.onresize = () => {

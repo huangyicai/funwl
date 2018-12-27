@@ -64,12 +64,12 @@
         </div>
 
         <el-row :gutter="20" style="margin-top: 40px">
-          <el-col :span="6" v-for="item in noticeVals"><div><el-card class="box-card" style="height:400px;margin-bottom: 20px;overflow-y:scroll">
+          <el-col :span="6" v-for="item in noticeVals"><div><el-card class="box-card" style="height:400px;margin-bottom: 20px;overflow:auto">
             <div slot="header" class="clearfix">
               <span>{{item.title}}</span>
               <el-button style="float: right; padding: 3px 0;color: #F56C6C" type="text" @click="delMessage(item.id)">删除</el-button>
             </div>
-            <div style="text-indent:25px">
+            <div style="text-indent:25px;font-weight: bold;line-height: 25px">
               {{item.content}}
             </div>
 
@@ -370,8 +370,10 @@
       },
     },
     mounted(){
-      this.getUserList()
-      this.getMessage();
+      if(sessionStorage.getItem('funwlPlatId')==2){
+        this.getUserList()
+        this.getMessage();
+      }
       this.getInfo(this.currentPage,this.pageSize);
     }
   }

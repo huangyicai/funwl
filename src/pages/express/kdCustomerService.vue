@@ -32,6 +32,7 @@
             value-format="yyyy-MM-dd HH:mm:ss"
           style="margin-left: 43%;margin-top: 30px;">
           </el-date-picker>
+
           <div  class="kd-index-header-right">
             <el-row style="margin-top: 20px">
               <el-col :span="6">
@@ -225,9 +226,19 @@
                           class="search-title-width"
                           placeholder="请输入商户名" prefix-icon="el-icon-search" size="small"></el-input>
               </el-form-item>
+              <el-form-item label="处理人" v-if="customerTabName=='全部工单'">
+                <el-select multiple v-model="ruleForm.accountUserList" placeholder="请选择处理人" size="small"
+                           class="search-title-width">
+                  <el-option
+                    v-for="item in accountList"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
 
-
-              <el-form-item label="接单耗时" v-if="customerTabName=='全部工单'&&display!=0">
+              <!--<el-form-item label="接单耗时" v-if="customerTabName=='全部工单'&&display!=0">
                 <el-select v-model="ruleForm.receiveSolt" placeholder="请选择">
                   <el-option label="10分钟内" value="10"></el-option>
                   <el-option label="30分钟内" value="30"></el-option>
@@ -250,14 +261,14 @@
                   <el-option label="3天内" value="4320"></el-option>
                   <el-option label="3天以上" value="0"></el-option>
                 </el-select>
-              </el-form-item>
+              </el-form-item>-->
               <br/><br/>
               <el-form-item style="margin-left: 30%">
                 <el-button type="primary" @click="submitForm('ruleForm')" size="small" :loading="submitRuleFormLoading">
                   确定
                 </el-button>
                 <el-button @click="resetFormRule('ruleForm')" size="small">重置</el-button>
-                <!--<a :href="downloadExcelUrl"><el-button type="primary"  size="small">导出工单</el-button></a>-->
+                <a :href="downloadExcelUrl"><el-button type="primary"  size="small">导出工单</el-button></a>
 
               </el-form-item>
             </el-form>
@@ -267,126 +278,21 @@
           <div slot="header" class="clearfix">
             <span class="kd-customer-main-title el-icon-service">{{customerTabName}}</span>&nbsp;&nbsp;&nbsp;
             <el-button @click='refreshService()' type="primary" icon="el-icon-refresh" size="small" v-if="customerTabName=='全部工单'">刷新</el-button>
+
+            <el-button @click='forwarding(serviceId)' type="primary" icon="el-icon-sort" size="small" v-if="customerTabName=='全部工单'">批量分配</el-button>
           </div>
           <div class="kd-customer-main-all">
-            <!--<div class="kd-customer-item" v-for="item in customerData ">
-              <p class="kd-customer-item-title clearfix">运单号：{{item.waybillNumber}}&nbsp;
-                <span class="fr" style="display: inline-block;margin-right: 10px">{{item.createTime}}</span>
-              </p>
-              <div class="kd-customer-item-main" v-if="item.status>1">
-                <el-row>
-                  <el-col :span="10">
-                    <div>
-                      <p>状态：
-                        <el-tag size="small" type="info" v-if="item.status===1">{{item.statusName}}</el-tag>
-                        <el-tag size="small" type="warning" v-if="item.status===2">{{item.statusName}}</el-tag>
-                        <el-tag size="small" type="success" v-if="item.status===3">{{item.statusName}}</el-tag>
-                      </p>
-                      <p>类型：{{item.typeName}}</p>
-                      <p>联系人：{{item.contacts}}</p>
-                      <p>联系电话：{{item.phone}}</p>
-                      <p v-if="item.imgUploadSrcList.length>0">
-                        附件：<a :href="ind" v-for="(ind,index) in item.imgUploadSrcList" target="_blank">&nbsp;&nbsp;<span
-                        style="color: #3a8ee6;text-decoration: underline">查看({{index+1}})</span></a>
-                      </p>
-                      <p>问题描述：{{item.content}}</p>
-                      <p v-if="item.remarks" style="color: #67c23a;">完结备注：{{item.remarks}}</p>
-                      <p v-if="item.handleName">处理人:{{item.handleName}}</p>
-                    </div>
-                  </el-col>
-                  <el-col :span="5">
-                    <div style=" min-height: 36px;"></div>
-                  </el-col>
-                  <el-col :span="9">
-                    <div style="text-align: left;line-height: 30px;">
-                      <p>
-                        <el-alert
-                          title=""
-                        type="success"
-                        :closable="false">
-                          接单时间：{{item.receiveTime}}
-                        </el-alert>
-                      </p>
-                      <p>
-                        <el-alert
-                          title=""
-                          type="warning"
-                          :closable="false">
-                          接单所耗时间：{{item.receiveTimeSolt}}
-                        </el-alert>
-                      </p>
-                      <p>
-                        <el-alert
-                          title=""
-                          type="info"
-                          :closable="false">
-                          {{item.status<3?'完结时间：未完结':'完结时间：'+item.endTime}}
-                        </el-alert>
-                      </p>
-                      <p>
-                        <el-alert
-                          title=""
-                          type="error"
-                          :closable="false">
-                          {{item.status<3?'完结所耗时间：未完结':'完结所耗时间：'+item.endTimeSolt}}
-                        </el-alert>
-                      </p>
-                    </div>
-                  </el-col>
-                </el-row>
-
-                <div class="kd-customer-footer">
-                  <el-button size="mini" type="primary" v-if="item.status===1" @click="handleOrder(item.id)">我来处理
-                  </el-button>
-                  <el-button size="mini" type="primary" v-if="item.status===2&&customerTabName==='我处理的'"
-                             @click="forwarding(item.id)">转发工单
-                  </el-button>
-                  <el-button size="mini" type="primary" v-if="item.status===2&&customerTabName==='我处理的'"
-                             @click='completeService(item.id)'>完结回复
-                  </el-button>
-                  <el-badge :value="item.replyNum" type="warning" v-if="item.status!=3&&customerTabName==='我处理的'">
-                    <el-button size="mini" type="primary" @click="chat(item.id,item.userId)">
-                      工单回复
-                    </el-button>
-                  </el-badge>
-                </div>
-              </div>
-              <div class="kd-customer-item-main" v-else>
-                <p>状态：
-                  <el-tag size="small" type="info" v-if="item.status===1">{{item.statusName}}</el-tag>
-                  <el-tag size="small" type="warning" v-if="item.status===2">{{item.statusName}}</el-tag>
-                  <el-tag size="small" type="success" v-if="item.status===3">{{item.statusName}}</el-tag>
-                </p>
-                <p>类型：{{item.typeName}}</p>
-                <p>联系人：{{item.contacts}}</p>
-                <p>联系电话：{{item.phone}}</p>
-                <p v-if="item.imgUploadSrcList.length>0">
-                  附件：<a :href="ind" v-for="(ind,index) in item.imgUploadSrcList" target="_blank">&nbsp;&nbsp;<span
-                  style="color: #3a8ee6;text-decoration: underline">查看({{index+1}})</span></a>
-                </p>
-                <p>问题描述：{{item.content}}</p>
-                <p v-if="item.remarks" style="color: #67c23a;">完结备注：{{item.remarks}}</p>
-                <p v-if="item.handleName">处理人:{{item.handleName}}</p>
-                <div class="kd-customer-footer">
-                  <el-button size="mini" type="primary" v-if="item.status===1" @click="handleOrder(item.id)">我来处理
-                  </el-button>
-                  <el-button size="mini" type="primary" v-if="item.status===2&&customerTabName==='我处理的'"
-                             @click="forwarding(item.id)">转发工单
-                  </el-button>
-                  <el-button size="mini" type="primary" v-if="item.status===2&&customerTabName==='我处理的'"
-                             @click='completeService(item.id)'>完结回复
-                  </el-button>
-
-                    <el-button size="mini" type="primary" v-if="item.status!=3&&customerTabName==='我处理的'"
-                               @click="chat(item.id,item.userId)">工单回复
-                    </el-button>
-                </div>
-              </div>
-            </div>-->
-            <!--:row-style="tableRowClassName"-->
             <el-table
               :data="customerData"
-              style="width: 100%;">
+              style="width: 100%;"
+              @selection-change="handleSelectionChange"
+              :default-sort = "{prop: 'createTime', order: 'descending'}"
+            >
+              <el-table-column
+                type="selection"
+                width="55"
+              >
+              </el-table-column>
               <el-table-column type="expand">
                 <template slot-scope="props">
                   <div class="kd-customer-item-main" v-if="props.row.status>1">
@@ -429,7 +335,7 @@
                               title=""
                               type="success"
                               :closable="false">
-                              接单时间：{{props.row.receiveTime}}
+                              接单时间：{{props.row.receiveTime==''?'暂无':props.row.receiveTime}}
                             </el-alert>
                           </p>
                           <p>
@@ -437,7 +343,7 @@
                               title=""
                               type="warning"
                               :closable="false">
-                              接单所耗时间：{{props.row.receiveTimeSolt}}
+                              接单所耗时间：{{props.row.receiveTime==''?'暂无':props.row.receiveTimeSolt}}
                             </el-alert>
                           </p>
                           <p>
@@ -524,6 +430,8 @@
               </el-table-column>
               <el-table-column
                 label="工单创建时间"
+                sortable
+                prop="createTime"
                 width="300">
                 <template slot-scope="scope">
                   <i class="el-icon-time"></i>
@@ -536,11 +444,11 @@
                 <template slot-scope="scope">
                   <el-button size="mini" type="primary" v-if="scope.row.status===1" @click="handleOrder(scope.row.id)">我来处理
                   </el-button>
-                  <el-button size="mini" type="primary" v-if="scope.row.status===2&&customerTabName==='我处理的'"
-                             @click="forwarding(scope.row.id)">转发工单
+                  <el-button size="mini" type="primary" v-if="scope.row.status===1"
+                             @click="forwarding(scope.row.id)">分配工单
                   </el-button>
-                  <el-button size="mini" type="primary" v-if="scope.row.status===2&&customerTabName==='我处理的'"
-                             @click='completeService(scope.row.id)'>完结回复
+                  <el-button size="mini" type="primary" v-if="scope.row.status===2&&customerTabName==='我处理的'&&scope.row.receiveTime!==''"
+                             @click='completeService(scope.row.id)'>完结
                   </el-button>
                   <el-badge :is-dot="scope.row.replyNum==0?false:true"  type="warning" v-if="customerTabName==='我处理的'">
                     <el-button size="mini" type="primary" @click="chat(scope.row.id,scope.row.userId,scope.row.content)">
@@ -550,7 +458,6 @@
                 </template>
               </el-table-column>
             </el-table>
-
           </div>
           <el-pagination
             background
@@ -706,6 +613,8 @@
     name: "customerService",
     data() {
       return {
+
+        serviceId:'',
         transferUser:false,
         usersListBinding:[],
         defaultProps: {
@@ -755,11 +664,13 @@
         customerData: [],
         customerLoading: false,
         ruleForm: {
+          accountUserList:[],
           customerErrorType: '0',
           waybillNumber: '',
           typeId: '',
           createTime: '',
           endTime: '',
+          keyName:'',
           receiveSolt:"",
           endSolt:""
         },
@@ -792,6 +703,7 @@
         },
 
         handleId: '',
+        accountList:[],
         submitLoading: false,
         replyData: {
           textInfo: ''
@@ -827,11 +739,9 @@
           statu: 1,
           success: res => {
             let redata = res.data;
-            console.log(redata)
             redata.forEach(v=>{
               v.status==1? v.status=true: v.status=false
             })
-            console.log(redata)
             this.UserListData = redata
           },
           fail: r => {
@@ -862,7 +772,6 @@
             this.getBinding(this.user);
           },
           fail: res => {
-            console.log(res);
           }
         })
       },
@@ -909,7 +818,6 @@
             loading.close();
           },
           fail: res => {
-            console.log(res);
             loading.close();
           }
         })
@@ -951,7 +859,6 @@
         })
       },
       serviceDateChange(){
-        console.log(this.serviceDate)
         this.getAllReplys()
         this.getAllReplysByService()
       },
@@ -978,6 +885,7 @@
           status: this.ruleForm.customerErrorType,
           waybillNumber: this.ruleForm.waybillNumber,
           keyName:this.ruleForm.keyName,
+          accountUserList:[],
           createTime: this.ruleForm.createTime,
           endTime: this.ruleForm.endTime,
           receiveSolt: this.ruleForm.receiveSolt,
@@ -990,6 +898,7 @@
                         size: size,
                         waybillNumber: waybillNumber,
                         keyName:keyName,
+                        accountUserList:accountUserList,
                         createTime: createTime,
                         endTime: endTime,
                         status: status,
@@ -1001,6 +910,7 @@
         let param = {
           waybillNumber: waybillNumber,
           keyName:keyName,
+          accountUserList:accountUserList,
           page: page,
           size: size,
           status: status,
@@ -1085,6 +995,7 @@
           status: this.ruleForm.customerErrorType,
           waybillNumber: this.ruleForm.waybillNumber,
           keyName:this.ruleForm.keyName,
+          accountUserList:this.ruleForm.accountUserList.join(),
           createTime: this.ruleForm.createTime,
           endTime: this.ruleForm.endTime,
           receiveSolt:this.ruleForm.receiveSolt,
@@ -1100,6 +1011,7 @@
           status: this.ruleForm.customerErrorType,
           waybillNumber: this.ruleForm.waybillNumber,
           keyName:this.ruleForm.keyName,
+          accountUserList:this.ruleForm.accountUserList.join(),
           createTime: this.ruleForm.createTime,
           endTime: this.ruleForm.endTime,
           receiveSolt:this.ruleForm.receiveSolt,
@@ -1126,6 +1038,7 @@
           status: this.ruleForm.customerErrorType,
           waybillNumber: this.ruleForm.waybillNumber,
           keyName:this.ruleForm.keyName,
+          accountUserList:this.ruleForm.accountUserList.join(),
           createTime: this.ruleForm.createTime,
           endTime: this.ruleForm.endTime,
           receiveSolt:this.ruleForm.receiveSolt,
@@ -1137,7 +1050,7 @@
       getAllReplysByService(){
         let dateBegin =''
         let dateEnd =''
-        if(this.serviceDate!=''){
+        if(this.serviceDate!=''&&this.serviceDate!=null){
           dateBegin=this.serviceDate[0]
           dateEnd = this.serviceDate[1]
         }
@@ -1163,11 +1076,9 @@
       getAllReplys(){
         let dateBegin =''
         let dateEnd =''
-        if(this.serviceDate!=''){
+        if(this.serviceDate!=''&&this.serviceDate!=null){
           dateBegin=this.serviceDate[0]
           dateEnd = this.serviceDate[1]
-          console.log(dateBegin)
-          console.log(dateEnd)
         }
         let params = {
           dateBegin:dateBegin,
@@ -1185,6 +1096,27 @@
           fail: e => {
 
           }
+        })
+      },
+      handleSelectionChange(val) {
+        let arr = [];
+        if (val.length > 0) {
+          val.forEach(v => {
+            arr.push(v.id)
+          });
+        }
+        this.serviceId = arr.join();
+      },
+      //未处理工单数
+      nohandle(){
+        $axios.request({
+          url: '/express/service/noHandle',
+          _this: this,
+          method: 'get',
+          statu: 1,
+          success: res => {
+            this.$store.state.serviceNum=res.data;
+          },
         })
       },
       //我来处理
@@ -1208,6 +1140,7 @@
                 status: this.ruleForm.customerErrorType,
                 waybillNumber: this.ruleForm.waybillNumber,
                 keyName:this.ruleForm.keyName,
+                accountUserList:this.ruleForm.accountUserList.join(),
                 createTime: this.ruleForm.createTime,
                 endTime: this.ruleForm.endTime,
                 receiveSolt:this.ruleForm.receiveSolt,
@@ -1221,16 +1154,8 @@
               duration: 500,
             });
             //this.$store.state.serviceNum = this.$store.state.serviceNum-1;
-            $axios.request({
-              url: '/express/service/noHandle',
-              _this: this,
-              method: 'get',
-              statu: 1,
-              success: res => {
-                this.$store.state.serviceNum=res.data;
-              },
-            })
 
+            this.nohandle()
             this.getCustomerInfo({
               page: this.currentPage,
               size: this.pageSize,
@@ -1238,6 +1163,7 @@
               status: this.ruleForm.customerErrorType,
               waybillNumber: this.ruleForm.waybillNumber,
               keyName:this.ruleForm.keyName,
+              accountUserList:this.ruleForm.accountUserList.join(),
               createTime: this.ruleForm.createTime,
               endTime: this.ruleForm.endTime,
               receiveSolt:this.ruleForm.receiveSolt,
@@ -1250,8 +1176,29 @@
 
         })
       },
+      getAccount(){
+        $axios.request({
+          url: '/express/service/getAccounts',
+          method: 'get',
+          statu: 1,
+          _this: this,
+          success: res => {
+            this.accountList = res.data;
+          },
+          fail: res => {
+            console.log(res);
+          }
+        })
+      },
       //转发
       forwarding(id) {
+        if(id==''){
+          this.$message.error({
+            message: '请选择工单',
+            duration: 1000,
+          })
+          return;
+        }
         this.handleId = id;
         this.dialogVisible = true;
         $axios.request({
@@ -1261,7 +1208,6 @@
           _this: this,
           success: res => {
             this.customerUserList = res.data;
-
           },
           fail: res => {
             console.log(res);
@@ -1275,14 +1221,14 @@
       },
       submitForm(formName) {
         let _this = this;
-
-        function forwardingSubmit() {
+        function forwardingSubmit(formName) {
           $axios.request({
             url: '/express/service/forward/' + _this.handleId + '/' + _this.formData.customerName,
             method: 'post',
             statu: 2,
             _this: _this,
             success: () => {
+              _this.nohandle()
               _this.$message({
                 type: 'success',
                 message: '操作成功',
@@ -1297,6 +1243,7 @@
                 status: _this.ruleForm.customerErrorType,
                 waybillNumber: _this.ruleForm.waybillNumber,
                 keyName: _this.ruleForm.keyName,
+                accountUserList:_this.ruleForm.accountUserList.join(),
                 createTime: _this.ruleForm.createTime,
                 endTime: _this.ruleForm.endTime,
                 receiveSolt:_this.ruleForm.receiveSolt,
@@ -1310,7 +1257,7 @@
           })
         };
 
-        function completeServiceSubmit() {
+        function completeServiceSubmit(formName) {
           $axios.request({
             url: '/express/service/finish/' + _this.completeServiceId,
             method: 'get',
@@ -1319,12 +1266,20 @@
             data: {
               remarks: _this.replyData.textInfo
             },
-            success: () => {
+            success: res => {
               _this.$message({
                 type: 'success',
                 message: '操作成功',
                 duration: 500,
               });
+              /*_this.customerData.forEach(v=>{
+                if( v.id==res.data.id){
+                  v.endTimeSolt =dateCompare(res.data.createTime,res.data.endTime);
+                  v.endTime = res.data.endTime
+                  v.status = 3
+                }
+              })*/
+
               _this.submitLoading = false
               _this.resetForm(formName);
               _this.getCustomerInfo({
@@ -1333,7 +1288,8 @@
                 type: _this.ruleForm.typeId,
                 status: _this.ruleForm.customerErrorType,
                 waybillNumber: _this.ruleForm.waybillNumber,
-                keyName:this.ruleForm.keyName,
+                keyName: _this.ruleForm.keyName,
+                accountUserList:_this.ruleForm.accountUserList.join(),
                 createTime: _this.ruleForm.createTime,
                 endTime: _this.ruleForm.endTime,
                 receiveSolt:_this.ruleForm.receiveSolt,
@@ -1352,10 +1308,10 @@
             this.submitLoading = true;
             switch (formName) {
               case 'form':
-                forwardingSubmit();
+                forwardingSubmit('form');
                 break;
               case 'replyFrom':
-                completeServiceSubmit();
+                completeServiceSubmit('replyFrom');
                 break;
               case 'ruleForm':
                 this.getCustomerInfo({
@@ -1365,6 +1321,7 @@
                   status: this.ruleForm.customerErrorType,
                   waybillNumber: this.ruleForm.waybillNumber,
                   keyName:this.ruleForm.keyName,
+                  accountUserList:this.ruleForm.accountUserList.join(),
                   createTime: this.ruleForm.createTime,
                   endTime: this.ruleForm.endTime,
                   receiveSolt:this.ruleForm.receiveSolt,
@@ -1374,7 +1331,6 @@
 
 
           } else {
-            console.log('error submit!!');
             return false;
           }
 
@@ -1388,6 +1344,7 @@
       resetFormRule(formName) {
         this.ruleForm = {
           customerErrorType: '0',
+          accountUserList:[],
           waybillNumber: '',
           typeId: '',
           createTime: '',
@@ -1402,6 +1359,7 @@
           status: this.ruleForm.customerErrorType,
           waybillNumber: this.ruleForm.waybillNumber,
           keyName:this.ruleForm.keyName,
+          accountUserList:this.ruleForm.accountUserList.join(),
           createTime: this.ruleForm.createTime,
           endTime: this.ruleForm.endTime,
           receiveSolt:this.ruleForm.receiveSolt,
@@ -1463,6 +1421,14 @@
             },
             success: res => {
               this.getChatInfo(this.handleId);
+
+              this.customerData.forEach(v=>{
+                if( v.id==res.data.id){
+                 v.receiveTimeSolt =dateCompare(res.data.createTime,res.data.receiveTime);
+                  v.receiveTime = res.data.receiveTime
+                }
+              })
+
               this.textarea = '';
               setTimeout(() => {
                 this.$refs.main.scrollTop = this.$refs.main.scrollHeight + 40;
@@ -1477,6 +1443,7 @@
     },
     mounted() {
       this.getErrorType()
+      this.getAccount()
       this.getCustomerInfo({
         page: this.currentPage,
         size: this.pageSize,
@@ -1484,6 +1451,7 @@
         status: this.ruleForm.customerErrorType,
         waybillNumber: this.ruleForm.waybillNumber,
         keyName:this.ruleForm.keyName,
+        accountUserList:this.ruleForm.accountUserList.join(),
         createTime: this.ruleForm.createTime,
         endTime: this.ruleForm.endTime,
         receiveSolt: this.ruleForm.receiveSolt,

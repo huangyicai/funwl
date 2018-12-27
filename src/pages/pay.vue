@@ -44,11 +44,11 @@
                       <p style="font-weight: bold;">优惠价<span>￥9600.0</span></p>
                     </div>
                   </el-button>
-                  <el-button class="fl offerPay" type="warning" plain style="margin-left: 40px" @click="totalPrice(19200)">
+                  <el-button class="fl offerPay" type="warning" plain style="margin-left: 40px" @click="totalPrice(16000)">
                     <span style="font: 22px Extra large;">24个月</span>
                     <div class="fontPay">
-                      <p  style="text-align: center">送12个月</p>
-                      <p style="font-weight: bold;">优惠价<span>￥19200.0</span></p>
+                      <p class="original-price">原价:<span>￥19200.0</span></p>
+                      <p style="font-weight: bold;">优惠价<span>￥16000.0</span></p>
                     </div>
                   </el-button>
 

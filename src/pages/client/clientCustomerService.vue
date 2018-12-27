@@ -18,7 +18,7 @@
           <el-form-item label="联系人" prop="contacts">
             <el-input v-model="ruleForm.contacts"></el-input>
           </el-form-item>
-          <el-form-item label="商户名" prop="contacts">
+          <el-form-item label="商户名">
             <el-select v-model="userKey" placeholder="请选择">
               <el-option
                 v-for="item in userKeys"

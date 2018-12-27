@@ -60,12 +60,17 @@
               </el-tooltip>
             </div>
             <div class="kdPro-analysis-right-header-item">
-              <el-tooltip   effect="dark" content="实收单价 = 实收/已付款的总单量" placement="bottom">
+              <el-tooltip   effect="dark" content="实收单价 = 实收总金额÷总单量" placement="bottom">
                 <span>￥&nbsp;实收单价：{{profitsData.paidOnePrice }}</span>
               </el-tooltip>
             </div>
             <div class="kdPro-analysis-right-header-item">
-              <el-tooltip   effect="dark" content="实收成本单价 = 实收成本/已付款的总单量" placement="bottom">
+              <el-tooltip   effect="dark" content="实收利润 = 实收 - 实收成本" placement="bottom">
+                <span>￥&nbsp;实收利润：{{profitsData.paidProfits}}</span>
+              </el-tooltip>
+            </div>
+            <div class="kdPro-analysis-right-header-item">
+              <el-tooltip   effect="dark" content="实收成本单价 = 实收成本金额÷总单量" placement="bottom">
                 <span class="iconfont icon-banshou">&nbsp;实收成本单价：{{profitsData.paidCostOne}}</span>
               </el-tooltip>
             </div>
@@ -74,13 +79,8 @@
                 <span class="iconfont icon-banshou">&nbsp;实收单件利润：{{profitsData.paidOneProfits}}</span>
               </el-tooltip>
             </div>
-            <div class="kdPro-analysis-right-header-item">
-              <el-tooltip   effect="dark" content="实收利润 = 实收 - 实收成本" placement="bottom">
-                <span>￥&nbsp;实收利润：{{profitsData.paidProfits}}</span>
-              </el-tooltip>
-            </div>
             <div class="kdPro-analysis-right-header-item-p">
-              <el-tooltip   effect="dark" content="实收利润百分比 = 实收利润/实收" placement="bottom">
+              <el-tooltip   effect="dark" content="实收利润百分比 = 实收利润÷实收金额" placement="bottom">
                 <span>%&nbsp;实收利润百分比：{{(profitsData.paidProfitsPercentage*100<0?0:profitsData.paidProfitsPercentage*1000000/10000).toFixed(2)}}%</span>
               </el-tooltip>
             </div>
@@ -101,18 +101,8 @@
               </el-tooltip>
             </div>
             <div class="kdPro-analysis-left-header-item">
-              <el-tooltip   effect="dark" content="应收单价 = 应收/已发送（包括已付款）账单的总单量" placement="bottom">
+              <el-tooltip   effect="dark" content="应收单价 = 应收总金额÷总单量" placement="bottom">
                 <span>￥&nbsp;应收单价：{{profitsData.offerOnePrice }}</span>
-              </el-tooltip>
-            </div>
-            <div class="kdPro-analysis-left-header-item">
-              <el-tooltip   effect="dark" content="应收成本单价 = 应收成本/已发送（包括已付款）账单的总单量" placement="bottom">
-                <span class="iconfont icon-banshou">&nbsp;应收成本单价：{{profitsData.offerCostOne}}</span>
-              </el-tooltip>
-            </div>
-            <div class="kdPro-analysis-left-header-item">
-              <el-tooltip   effect="dark" content="应收单件利润 = 应收单价 - 应收成本单价" placement="bottom">
-                <span class="iconfont icon-banshou">&nbsp;应收单件利润：{{profitsData.offerOneProfits}}</span>
               </el-tooltip>
             </div>
             <div class="kdPro-analysis-left-header-item">
@@ -121,8 +111,19 @@
               </el-tooltip>
 
             </div>
+            <div class="kdPro-analysis-left-header-item">
+              <el-tooltip   effect="dark" content="应收成本单价 = 应收成本÷总单量" placement="bottom">
+                <span class="iconfont icon-banshou">&nbsp;应收成本单价：{{profitsData.offerCostOne}}</span>
+              </el-tooltip>
+            </div>
+            <div class="kdPro-analysis-left-header-item">
+              <el-tooltip   effect="dark" content="应收单件利润 = 应收单价 - 应收成本单价" placement="bottom">
+                <span class="iconfont icon-banshou">&nbsp;应收单件利润：{{profitsData.offerOneProfits}}</span>
+              </el-tooltip>
+            </div>
+
             <div class="kdPro-analysis-left-header-item-p">
-              <el-tooltip   effect="dark" content="应收利润百分比 = 应收利润/应收" placement="bottom">
+              <el-tooltip   effect="dark" content="应收利润百分比 = 应收利润÷应收" placement="bottom">
                 <span>%&nbsp;应收利润百分比：{{(profitsData.offerProfitsPercentage*100<0?0:profitsData.offerProfitsPercentage*10000/100).toFixed(2)}}%</span>
               </el-tooltip>
             </div>

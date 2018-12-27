@@ -31,8 +31,12 @@ Vue.use(Vuex);
 Vue.use(store);
 Vue.use(echarts);
 Vue.use(axios);
+//axios.defaults.timeout =  100000;
 Vue.prototype.$axios = $axios;
 Vue.config.productionTip = false;
+
+
+// Vue.config.silent = true
 // Vue.prototype.getRequest = getRequest;
 // Vue.prototype.postRequest = postRequest;
 // Vue.prototype.deleteRequest = deleteRequest;

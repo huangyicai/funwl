@@ -9,7 +9,7 @@
               <a href="https://funwl.oss-cn-hangzhou.aliyuncs.com/template/template.xlsx" target="_blank">
                 <span style="font-weight: bold;font-size: 17px;text-decoration: underline;color: #00a0f0">下载模板</span>
               </a>
-              <el-button style="float: right; padding: 3px 0" type="text" @click="goBack" icon="el-icon-arrow-left">返回</el-button>
+              <el-button style="float: right; padding: 3px 0" type="text" @click="goBack" icon="el-icon-arrow-left">分配账单至客户列表</el-button>
             </div>
             <div >
               <span>时间：</span>
@@ -76,7 +76,7 @@
 
                   <el-col :span="2" v-for="(item,index) in arrListDate" :key="item.id">
                     <el-tooltip class="item" effect="dark" placement="bottom">
-                      <div slot="content">{{item.name}}<br/>总单量:{{item.totalNumber}}</div>
+                      <div slot="content">{{item.name}}<br/>总单量:{{item.totalNumber}}单<br/>应付金额:{{item.totalOffer}}元</div>
                       <el-card :body-style="{ padding: '0px'}" style="margin-left: 10px">
                         <el-checkbox  :checked="true" style="margin-left: 42%;z-index: 999" disabled></el-checkbox>
                         <br>
@@ -85,10 +85,9 @@
                         </a>
                         <div style="padding: 14px;">
                           <div style="width: 100%;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;color: #00a0f0">{{item.name}}</div>
-                          <span class="time">总单量:{{item.totalNumber}}</span>
-                          <br>
-                          <el-button type="text" size="mini" style="color: #909399;" class="button" disabled><i class="el-icon-share"></i> 已定价</el-button>
-                          <el-button type="text" style="color: #F56C6C;float: right" size="mini" @click="delBill(item.totalId,index,1)" icon="el-icon-delete" :circle="true">删除</el-button>
+                          <span class="time">金额:{{item.totalOffer}}元</span><br>
+                          <el-button type="text" size="mini" style="color: #000;font-size: 13px" class="button" disabled>总单量:{{item.totalNumber}}</el-button>
+                          <el-button type="text" style="color: #F56C6C;float: right" size="mini" @click="delBill(item.totalId,index,1)" icon="el-icon-delete" :circle="true"></el-button>
                         </div>
                       </el-card>
                     </el-tooltip>
@@ -463,11 +462,14 @@
             method: 'get',
             statu: 2,
             success: res => {
+              console.log(res.data)
               let arrList = []
               let arr = this.uploadData.existence
               arr.forEach(v=>{
                 if(id===v.totalId){
-                  this.arrListDate.push(v)
+                  console.log(111)
+                  this.arrListDate.push(res.data)
+                  console.log(this.arrListDate)
                 }else{
                   arrList.push(v)
                 }

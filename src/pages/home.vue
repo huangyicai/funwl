@@ -40,10 +40,6 @@
         <el-col :span="5">
           <div class="home-header-r fr">
             <!--<span   > 退出登录</span>-->
-            <el-tooltip v-if="platId==2" class="item" effect="dark"
-                        :content="contactsValue.name+':'+contactsValue.phone" placement="bottom">
-              <i style="font-size: 14px ;margin-right: 50px;color: #555555" class="el-icon-phone-outline">:客服</i>
-            </el-tooltip>
             <el-dropdown trigger="click" style="color: #555" size="small">
       <span class="el-dropdown-link" ref="personal">
         {{userName}}<i class="el-icon-arrow-down el-icon--right"></i>
@@ -80,6 +76,13 @@
     <!--<el-breadcrumb-item>活动详情</el-breadcrumb-item>-->
     <!--</el-breadcrumb>-->
     <!--</section>-->
+    <!--contactsValue.name-->
+    <div style="position: fixed;bottom:100px;right: 30px;z-index: 999;">
+      <el-tooltip v-if="platId==2" class="item" effect="dark"
+                  :content="'售后:'+contactsValue.phone" placement="left">
+        <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/vrwl6cmsat"  style="width: 45px;height: 45px"alt="" >
+      </el-tooltip>
+    </div>
     <section class="home-content" ref="homecontent">
       <section class="page-box clearfix">
         <el-row class="page-box-row">
@@ -103,7 +106,7 @@
         <el-carousel-item v-for="item in messageList" :key="item.id">
           <h6 style="text-align: center;font-weight: bold;font-size: 16px;color: #409EFF">{{ item.title}}</h6>
           <hr style="margin-top: 20px">
-          <div style="margin-left:10%;text-align: left;width:80%;padding: -30px;text-indent:25px;">
+          <div style="margin-left:10%;text-align: left;width:80%;padding: -30px;text-indent:25px;font-weight: bold;font-size: 15px">
             {{ item.content}}
           </div>
         </el-carousel-item>
@@ -378,9 +381,9 @@
       },
       //websocket
       initWebSocket() { //初始化weosocket
-        // const wsuri = 'ws://www.funwl.com:8090/test/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
+        const wsuri = 'ws://www.funwl.com:8090/test/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
         // const wsuri = 'ws://www.funwl.com:8090/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
-        const wsuri = 'ws://10.10.10.45:8080/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
+        // const wsuri = 'ws://10.10.10.45:8080/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
         this.websock = new WebSocket(wsuri);
         this.websock.onopen = this.websocketonopen;
         this.websock.onerror = this.websocketonerror;

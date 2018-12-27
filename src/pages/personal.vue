@@ -66,9 +66,13 @@
                 <el-table-column
                   prop="caozuo"
                   label="操作"
+                  width="200"
                 >
                   <template slot-scope="scope">
-                    <el-button   type="danger"  size="mini" :loading="kdBillLoading"  plain   class="kd-bill-type-btn "  icon="el-icon-delete" @click="delExpress(scope.row.id)">删除</el-button>
+                    <el-button   type="danger"  size="mini" :loading="kdBillLoading"  plain
+                                 class="kd-bill-type-btn "  icon="el-icon-delete" @click="delExpress(scope.row.id)">删除</el-button>
+                    <el-button   type="success"  size="mini" :loading="kdBillLoading"  plain
+                                 class="kd-bill-type-btn "  icon="el-icon-edit" @click="updateExpress(scope.row)">编辑</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -106,6 +110,33 @@
         <span slot="footer" class="dialog-footer">
     <el-button @click="changePassword = false" size="small">取 消</el-button>
     <el-button type="primary" @click="csSubmitForm('csRuleForm')" size="small">确 定</el-button>
+  </span>
+      </el-dialog>
+      <el-dialog
+        title="编辑信息"
+        :visible.sync="updataUserBool"
+        width="450px"
+      >
+        <el-form :model="updataUser" :rules="updataUserRules" ref="updataUser" label-width="80px" size="medium"
+                 status-icon >
+          <el-form-item label="昵称" prop="name" >
+            <el-input v-model="updataUser.name" placeholder="请输入用户名" prefix-icon="iconfont icon-ren"></el-input>
+          </el-form-item>
+          <el-form-item label="联系电话" prop="telephone" >
+            <el-input v-model="updataUser.telephone" placeholder="请输入联系号码" class="wid"
+                      prefix-icon="el-icon-phone"></el-input>
+          </el-form-item>
+          <el-form-item label="负责人" prop="personInCharge" >
+            <el-input v-model="updataUser.personInCharge" placeholder="请输入用户公司负责人"
+                      prefix-icon="iconfont icon-ren"></el-input>
+          </el-form-item>
+          <el-form-item label="用户邮箱" >
+            <el-input v-model="updataUser.email" placeholder="请输入用户邮箱" prefix-icon="el-icon-share"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+    <el-button @click="updataUserBool = false" size="small">取 消</el-button>
+    <el-button type="primary" @click="updataUserSubmitForm('updataUser')" size="small">确 定</el-button>
   </span>
       </el-dialog>
 
@@ -386,7 +417,7 @@
             <el-input v-model="ruleForm2.telephone" placeholder="请输入联系号码" class="wid"
                       prefix-icon="el-icon-phone"></el-input>
           </el-form-item>
-          <el-form-item label="用户邮箱" prop="email" class="fn-user-form-item">
+          <el-form-item label="用户邮箱" class="fn-user-form-item">
             <el-input v-model="ruleForm2.email" placeholder="请输入用户邮箱" prefix-icon="el-icon-share"></el-input>
           </el-form-item>
           <el-form-item label="负责人" prop="personInCharge" class="fn-user-form-item">
@@ -506,6 +537,20 @@
         }
       }
       return {
+        updataUserBool:false,
+        updataUser:{},
+        updataUserRules: {
+          name: [
+            {required: true, message: '昵称不能为空', trigger: 'change'}
+          ],
+          telephone: [
+            {required: true, validator: validPhone, trigger: 'change'}
+          ],
+          personInCharge: [
+            {required: true, message: '用户公司负责人不能为空哦！', trigger: 'change'}
+          ],
+        },
+
         openAndOff:false,
         formLabelWidth:'100px',
         userInfoData: {},
@@ -588,7 +633,7 @@
         id:0,
         //特殊定价组
         specialCityList:[],
-        specialCityListValue:'1',
+        specialCityListValue:'',
         specialDialogFormVisible:false,
         specialForm:{},
         radioPrice:'1',
@@ -641,6 +686,10 @@
             this.openAndOff=false;
           }
         });
+      },
+      updateExpress(val){
+        this.updataUser=val
+        this.updataUserBool=true;
       },
       delExpress(id){
         this.$confirm('是否删除?', '提示', {
@@ -706,6 +755,47 @@
         this.$refs[formName].resetFields();
         this.changePassword = false;
         this.dialogFormVisible = false;
+      },
+
+      updataUserSubmitForm(formName){
+        let _this = this;
+        let list = this.updataUser;
+        let params = {};
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            params = {
+              id:list.id,
+              name: list.name,
+              email: list.email,
+              telephone:list.telephone,
+              personInCharge:list.personInCharge
+            };
+            $axios.request({
+              url: '/express/userCenter/info',
+              method: 'put',
+              _this: _this,
+              statu: 2,
+              data: params,
+              success: res => {
+                _this.updataUserBool=false;
+                _this.$message({
+                  type: 'success',
+                  duration:500,
+                  message: '修改成功!'
+                });
+                this.getKdUser();
+                _this.resetForm(formName);
+              },
+              fail: error => {
+                console.log(error)
+                _this.updataUserBool=false;
+              }
+            })
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       },
       csSubmitForm(formName) {
         let _this = this;
@@ -838,6 +928,7 @@
       },
       handleClick(tab, event) {
         console.log(tab)
+        this.specialCityListValue=''
         this.getCityListInfo(tab.name)
         this.replaceStatus = false;
       },
@@ -1202,7 +1293,6 @@
               }
             });
             this.thenTableData = res.data.continuedWeight;
-
             this.priceLoading = false;
           },
           fail:res=>{
@@ -1213,6 +1303,7 @@
       },
 
       specialHandleClick(a,b){
+        this.activeName =''
         this.getSpecialCityInfo();
       },
       addTab(targetName) {
@@ -1277,13 +1368,13 @@
       this.getUserInfo();
     },
     mounted() {
-      if ( this.userStatus<1){
+     /* if ( this.userStatus<1){
           return false
       } else {
-
+        console.log("!!!asASs")*/
         this.getCityListInfo(this.activeName)
         this.getSpecialCityList();
-      }
+     /* }*/
     }
   }
 </script>

@@ -2,7 +2,7 @@
   <section class="kd-bill-container">
     <div class="kd-bill-top  clearfix">
     </div>
-    <el-card class="kd-bill-left">
+    <el-card class="kd-bill-left" v-if="retract">
       <div slot="header" class="clearfix">
         <span class="iconfont icon-users  kd-bill-search-title">客户列表</span>
         <el-button icon="el-icon-upload" type="primary"size="mini" style="float: right; padding: 5px"  @click="toUpload">上传总账单</el-button>
@@ -38,8 +38,10 @@
         </el-tree>
       </div>
     </el-card>
-    <el-card class="kd-bill-card">
+    <el-card :class="retract?'kd-bill-card':''">
       <div slot="header" class="clearfix">
+        <el-button type="text" icon="el-icon-rank" style="font-size: 23px" class="transitionClass" @click="retract=!retract"></el-button>
+        &nbsp;&nbsp;&nbsp;
         <span class="el-icon-document kd-bill-title">账单信息 <span class="kd-bill-title-span">
           &nbsp;{{customerName==''?'全部账单':customerName}}
           </span>
@@ -82,16 +84,19 @@
           style="width: 100%"
           height="715px"
           v-loading="kdBillLoading"
+          :stripe="true"
+          center
           @selection-change="handleSelectionChange"
         >
           <el-table-column
             type="selection"
-            width="55">
+            width="55"
+          disable>
           </el-table-column>
           <el-table-column
             prop="date"
-            label="类型"
-            width="280">
+            label="批量操作"
+            width="250">
             <template slot-scope="scope">
               <div class="kd-bill-type">
                 <span class="kd-bill-type-order-no">{{scope.row.orderNo }}</span>
@@ -100,16 +105,15 @@
                 <p>账户名:
                   {{scope.row.payee}}
                 </p>
-                <p>付款机构:{{scope.row.typeName}}</p>
-                <p>付款账号:{{scope.row.paymentAccount}}</p>
-                <p v-if="scope.row.asOfTime">截止日期:{{scope.row.asOfTime}}</p>
+                <p>收款机构:{{scope.row.typeName}}</p>
+                <p>收款账号:{{scope.row.paymentAccount}}</p>
+                <p v-if="scope.row.asOfTime">截止付款日期:{{scope.row.asOfTime}}</p>
               </div>
             </template>
           </el-table-column>
           <el-table-column
             prop="state"
             label="账单数据"
-            width="200"
           >
             <template slot-scope="scope">
               <a :href="scope.row.totalUrl" style="display: inline-block">
@@ -124,63 +128,42 @@
           <el-table-column
             prop="address"
             label="费用详情"
-            width="170">
+          >
             <template slot-scope="scope">
               <div class="kd-bill-type">
                 <p>总单量:{{scope.row.totalNumber }}</p>
                 <p>总重量:{{scope.row.totalWeight }}Kg</p>
                 <p>平均重量:{{(scope.row.totalWeight/scope.row.totalNumber).toFixed(2)  }}Kg</p>
+                <p v-if="scope.row.totalState!==-1">平均价格:{{(scope.row.totalOffer/scope.row.totalNumber).toFixed(2)  }}元/单</p>
               </div>
             </template>
           </el-table-column>
           <el-table-column
             prop="address"
             label="账单应付"
-            width="180">
+            width="180"
+            align="left">
             <template slot-scope="scope">
               <div style="color: #67c23a" v-if="scope.row.state===4" class="kd-bill-type">
                 <p>账单应付:￥{{scope.row.totalOffer }}</p>
-                <p>账单成本:￥{{scope.row.totalCost }}</p>
                 <p>账单实收:￥{{scope.row.totalPaid }}</p>
+                <p>账单成本:￥{{scope.row.totalCost }}</p>
                 <p>额外收款:￥{{scope.row.totalAdditional}}</p>
               </div>
               <div style="color: #f56c6c" v-else class="kd-bill-type">
-                <p>账单应付:￥{{scope.row.totalOffer }}</p>
-                <p>账单成本:￥{{scope.row.totalCost }}</p>
-                <p>账单实收:￥{{scope.row.totalPaid }}</p>
-                <p>额外收款:￥{{scope.row.totalAdditional}}</p>
-
+                <el-tag size="mini" type='success'>账单应付:￥{{scope.row.totalOffer }}</el-tag>
+                <el-tag size="mini" type='warning'>账单实收:￥{{scope.row.totalPaid }}</el-tag>
+                <el-tag size="mini">账单成本:￥{{scope.row.totalCost }}</el-tag>
+                <p style="font-size: 13px">额外收款:￥{{scope.row.totalAdditional}}</p>
               </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="凭证">
-            <template slot-scope="scope">
-              <a :href="item " v-if="scope.row.totalCredentialsUrl" v-for="(item,index) in scope.row.imgArr"
-                 style="display:block;color: #3a8ee6" target="_blank">查看凭证{{index+1}}</a>
-              <p v-if="!scope.row.totalCredentialsUrl">暂无凭证</p>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="totalRemark"
-            label="其他">
-            <template slot-scope="scope">
-              <span>账单状态:</span>
-              <el-tag size="small" v-if="scope.row.totalState===-1">未定价</el-tag>
-              <el-tag size="small" type="danger" v-if="scope.row.totalState===1">未发送</el-tag>
-              <el-tag size="small" type="info" v-if="scope.row.totalState===2">待确认</el-tag>
-              <el-tag size="small" type="warning" v-if="scope.row.totalState===3">对方已付款</el-tag>
-              <el-tag size="small" type="success" v-if="scope.row.totalState===4">已完结收款</el-tag>
-              <el-tag size="small" type="warning" v-if="scope.row.totalState===5">部分付款</el-tag>
-              <p>账单备注:{{scope.row.totalRemark}}</p>
-
             </template>
           </el-table-column>
           <el-table-column
             prop="address"
             label="操作"
-            width="100">
+            width="180"
+            align="center"
+            header-align="center">
             <template slot-scope="scope">
               <div>
                 <el-button type="info" size="mini" :loading="kdBillLoading" plain
@@ -205,11 +188,11 @@
                 </el-button>
                 <el-button type="success" size="mini" :loading="kdBillLoading" plain
                            v-if="(scope.row.totalState===3||scope.row.totalState===5)&&userId!=-1" class="kd-bill-type-btn"
-                           @click="aaa(scope.row.totalId)">确认收款
+                           @click="aaa(scope.row)">确认收款
                 </el-button>
                 <el-button type="warning" size="mini" :loading="kdBillLoading" plain
                            v-if="scope.row.totalState>=2&&scope.row.totalState!==4&&userId!=-1" class="kd-bill-type-btn"
-                           @click="dialogSelfPriceBut(scope.row.totalId)">自我结款
+                           @click="dialogSelfPriceBut(scope.row)">自我结款
                 </el-button>
                 <el-button type="success" size="mini" :loading="kdBillLoading" plain v-if="userId==-1"
                            class="kd-bill-type-btn " icon="el-icon-share" @click="sendBill(scope.row.totalId)">转发
@@ -221,6 +204,41 @@
               </div>
             </template>
           </el-table-column>
+
+          <el-table-column
+            prop="totalRemark"
+            label="其他">
+            <template slot-scope="scope">
+              <span>账单状态:</span>
+              <el-tag size="small" v-if="scope.row.totalState===-1">未定价</el-tag>
+              <el-tag size="small" type="danger" v-if="scope.row.totalState===1">未发送</el-tag>
+              <el-tag size="small" type="info" v-if="scope.row.totalState===2">待确认</el-tag>
+              <el-tag size="small" type="warning" v-if="scope.row.totalState===3">对方已付款</el-tag>
+              <el-tag size="small" type="success" v-if="scope.row.totalState===4">已完结收款</el-tag>
+              <el-tag size="small" type="warning" v-if="scope.row.totalState===5">部分付款</el-tag>
+              <p>账单备注:{{scope.row.totalRemark}}</p>
+
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="付款凭证"
+            align="center"
+            header-align="center"
+            center>
+            <template slot-scope="scope">
+
+              <el-carousel :autoplay="false" :interval="4000" type="card" height="130px" v-if="scope.row.totalCredentialsUrl">
+                <el-carousel-item   v-for="(item,index) in scope.row.imgArr" :key="item" style="text-align: center;font-size: 9px">
+                 凭证{{index+1}}<br>
+                  <a :href="item " target="_blank">
+                    <img :src="item" alt="" style="width: 110px;height: 130px">
+                  </a>
+                </el-carousel-item>
+              </el-carousel>
+              <p v-if="!scope.row.totalCredentialsUrl">暂无凭证</p>
+            </template>
+          </el-table-column>
         </el-table>
         <el-button
           v-if="userId!=-1"
@@ -228,10 +246,21 @@
           type="primary"
           class="fl"
           style="margin-top: 20px"
-          icon="el-icon-share"
+          icon="el-icon-printer"
           @click="sendAllBill"
         >发送
         </el-button>
+        <el-button
+          v-if="userId!=-1"
+          size="mini"
+          type="success"
+          class="fl"
+          style="margin-top: 20px"
+          icon="el-icon-edit-outline"
+          @click="sendAllBillPrice"
+        >定价
+        </el-button>
+
         <el-button
           v-else
           size="mini"
@@ -241,6 +270,15 @@
           icon="el-icon-share"
           @click="sendAllBill"
         >转发
+        </el-button>
+        <el-button
+          size="mini"
+          type="danger"
+          class="fl"
+          style="margin-top: 20px"
+          icon="el-icon-delete"
+          @click="delBillBatch"
+        >删除
         </el-button>
         <el-pagination
           class="fr"
@@ -293,7 +331,7 @@
       <el-form ref="priceFrom" :model="priceData" label-width="80px" :rules="priceRules">
         <el-form-item label="收款金额" prop="priceNum">
           <el-input
-            v-model.number="priceData.priceNum">
+            v-model.number="priceData.priceNum" @blur="priceBillInp">
           </el-input>
         </el-form-item>
       </el-form>
@@ -311,11 +349,12 @@
       title="自我结款"
       :visible.sync="dialogSelfPrice"
       width="30%"
+      @close="clearVal('priceFrom')"
     >
       <el-form ref="priceFrom" :model="priceData" label-width="80px" :rules="priceRules">
         <el-form-item label="收款金额" prop="priceNum">
           <el-input
-            v-model.number="priceData.priceNum">
+            v-model.number="priceData.priceNum" @blur="priceBillInp">
           </el-input>
         </el-form-item>
         <el-form-item label="附件凭证" >
@@ -391,6 +430,7 @@
     },
     data() {
       return {
+        retract:true,
         imgUploadSrc:[],
         //判断是否已经结清
         priceIsFinish:'2',
@@ -414,7 +454,15 @@
         options: [{
           value: '0',
           label: '全部'
-        }, {
+        },
+          {
+            value: '-1',
+            label: '未定价'
+          },
+          {
+            value: '1',
+            label: '未发送'
+          },{
           value: '-10',
           label: '未完结'
         }, {
@@ -453,6 +501,7 @@
         dialogPrice: false,
         dialogSelfPrice:false,
         priceId: '',
+        billPrice:0,
         dialogOther: false,
         otherFromData: {
           others: '',
@@ -915,8 +964,15 @@
         this.submitLoading=false;
         this.dialogSelfPrice=false;
         this.dialogOther = false;
-        //this.$refs.upload.clearFiles();
+        this.clearVal(formName);
         this.imgUploadSrc=[]
+      },
+      clearVal(val){
+        if(val=='priceFrom'){
+          this.$refs.upload.clearFiles();
+        }
+        this.priceData.priceNum = ''
+
       },
       sendBill(id) {
         this.sendBillId = id.toString();
@@ -928,6 +984,7 @@
         }
       },
       handleSelectionChange(val) {
+        console.log(val)
         this.multipleSelectionArr = val;
         let arr = [];
         if (val.length > 0) {
@@ -937,6 +994,80 @@
         }
         this.sendBillId = arr.join();
 
+      },
+      sendAllBillPrice(){
+        let _this = this
+
+        console.log(this.multipleSelectionArr)
+        if (this.multipleSelectionArr.length <= 0) {
+          this.$message({
+            type: 'error',
+            message: '请选择账单',
+            duration: 1000,
+          })
+          return false;
+        }
+        let arr = []
+        let all = 0;
+        this.multipleSelectionArr.forEach(v=>{
+          if(v.totalState==-1){
+            arr.push(v.totalId)
+          }else{
+            all = 1;
+          }
+        })
+        if(all==1){
+          this.$message({
+            type: 'error',
+            message: '您选择的账单中有已定价账单或其他账单！',
+            duration: 2000,
+          })
+          return
+        }
+
+        const loading = this.$loading({
+          lock: true,
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+
+        $axios.request({
+          url: '/express/total/keyPricing',
+          method: 'get',
+          statu: 1,
+          data: {totalId: arr.join()},
+          _this: this,
+          success: res => {
+            let str=''
+            res.data.forEach(val=>{
+              if(val.code!==0){
+                str += '<p style="color:#F56C6C">'+val.data.name+'账单--<span style="font-weight: bold;font-size:15px">('+val.info+')</span>'+'</p>'
+              }
+            })
+            if(str==''){
+              _this.$message({
+                type: 'success',
+                message: '定价成功',
+                duration: 500,
+              })
+            }else{
+              this.$confirm(str, '账单有误', {
+                confirmButtonText: '确定',
+                type: 'warning',
+                showCancelButton:false,
+                dangerouslyUseHTMLString: true,
+                center: true
+              })
+            }
+            _this.getBillList(_this.currentPage, _this.pageSize, _this.uploadTime, _this.killStatus, _this.userId)
+            loading.close();
+          },
+          fail: e => {
+            console.log(e);
+            loading.close();
+          }
+        })
       },
       sendAllBill() {
         if (this.multipleSelectionArr.length <= 0) {
@@ -962,14 +1093,30 @@
       },
 
       //确认收款
-      aaa(id) {
-        this.priceId = id;
+      aaa(val) {
+        this.priceId = val.totalId;
+        this.billPrice = val.totalOffer;
         this.dialogPrice = true;
       },
       //自我结款
-      dialogSelfPriceBut(id){
-        this.priceId = id;
+      dialogSelfPriceBut(val){
+        console.log(val)
+        this.priceId = val.totalId;
+        this.billPrice = val.totalOffer;
         this.dialogSelfPrice = true;
+      },
+
+      priceBillInp(){
+        if(this.priceData.priceNum>this.billPrice){
+          this.$confirm('输入金额已大于应付金额', '提示', {
+            confirmButtonText: '确定',
+            showCancelButton:false,
+            type: 'warning'
+          })
+        }
+      },
+      delBillBatch(){
+        this.delBill(this.sendBillId)
       },
       //删除
       delBill(id) {
@@ -1069,8 +1216,23 @@
     font-weight: 700;
   }
 
+  .transitionClass {
+    transition: All 0.4s ease-in-out;
+    -webkit-transition: All 0.4s ease-in-out;
+    -moz-transition: All 0.4s ease-in-out;
+    -o-transition: All 0.4s ease-in-out;
+  }
+
+  .transitionClass:hover {
+    transform: rotate(360deg) scale(1.4);
+    -webkit-transform: rotate(360deg) scale(1.4);
+    -moz-transform: rotate(360deg) scale(1.4);
+    -o-transform: rotate(360deg) scale(1.4);
+    -ms-transform: rotate(360deg) scale(1.4);
+
+  }
   .kd-bill-card {
-    margin-left: 305px;
+   margin-left: 305px;
   }
 
   .kd-bill-btn {
@@ -1096,7 +1258,9 @@
     color: #1c2438;
     font-weight: 700;
   }
-
+  .zIndex{
+    z-index: -10;
+  }
   .kd-bill-left {
     position: absolute;
     top: 10px;

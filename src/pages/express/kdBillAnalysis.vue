@@ -279,16 +279,19 @@
         this.getInfo(this.checkedKeysData)
       },
       handelEndChange(val){
-        if(new Date(this.monthEnd).getTime()<=new Date(this.month).getTime()){
-          this.$message({
-            type:'warning',
-            message:'结束时间需大于开始时间',
-            duration:1000,
-          })
-          this.monthEnd=''
-          return;
+
+        if(val!=='' && val!==null){
+          if(new Date(this.monthEnd).getTime()<=new Date(this.month).getTime()){
+            this.$message({
+              type:'warning',
+              message:'结束时间需大于开始时间',
+              duration:1000,
+            })
+            this.monthEnd=''
+            return;
+          }
+          this.getEndDate(val);
         }
-        this.getEndDate(val);
         if (this.checkedKeysData.length===0){
           this.$message({
             type:'warning',

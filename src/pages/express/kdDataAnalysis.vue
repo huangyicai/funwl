@@ -431,7 +431,6 @@
         let _this = this;
         let myChart = echarts.init(_this.$refs.weightChart);
         let data = genData(50);
-
         let option = {
           title: {
             text: '本月重量区间分布',
@@ -442,27 +441,28 @@
             trigger: 'item',
             formatter: "{a} <br/>{b} : {c} ({d}%)"
           },
-          // legend: {
-          //   type: 'scroll',
-          //   orient: 'vertical',
-          //   right: 10,
-          //   top: 20,
-          //   bottom: 20,
-          //   data: data.legendData,
-          //   selected: data.selected
-          // },
+          /*legend: {
+            type: 'scroll',
+            orient: 'vertical',
+            right: 200,
+            top: 20,
+            bottom: 20,
+            data: data.legendData,
+            selected: data.selected
+          },*/
+
           series: [
             {
               name: '重量区间分布',
               type: 'pie',
               radius: '55%',
-              center: ['40%', '50%'],
+              center: ['45%', '50%'],
               data: data.seriesData,
               itemStyle: {
                 emphasis: {
                   shadowBlur: 10,
                   shadowOffsetX: 0,
-                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                  shadowColor: 'rgba(100, 0, 0, 0.5)'
                 }
               }
             }
@@ -486,12 +486,14 @@
             selected[key] = true
           }
 
+          seriesData.forEach(v=>{
 
+          })
 
 
           return {
             legendData: legendData,
-            seriesData: seriesData,
+            seriesData: seriesData.slice(0,12),
             selected: selected
           };
 
