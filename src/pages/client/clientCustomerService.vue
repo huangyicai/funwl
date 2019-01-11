@@ -10,7 +10,9 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="运单号" prop="waybillNumber">
-            <el-input v-model="ruleForm.waybillNumber"></el-input>
+            <el-input v-model="ruleForm.waybillNumber">
+              <el-button slot="append"  type="primary" icon="el-icon-search" @click="autonumber(ruleForm.waybillNumber)">查询物流</el-button>
+            </el-input>
           </el-form-item>
           <el-form-item label="手机号" prop="phone">
             <el-input v-model="ruleForm.phone"></el-input>
@@ -139,8 +141,11 @@
           </el-table-column>
           <el-table-column
             width="200"
-            label="运单号"
-            prop="waybillNumber">
+            label="运单号(点击查看物流信息)"
+          >
+            <template slot-scope="scope">
+              <el-button type="text" :loading="loading" @click="autonumber(scope.row.waybillNumber)"><u>{{scope.row.waybillNumber}}</u></el-button>
+            </template>
           </el-table-column>
           <el-table-column
             width="120"
@@ -231,6 +236,21 @@
           </div>
         </div>
       </el-dialog>
+      <el-dialog :title="'物流信息'" :visible.sync="dialogTableVisible" center>
+        <div  v-if="information.status==200">
+          <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/le93cd5an8" alt="" width="100%" height="6px">
+          <el-steps direction="vertical" :active="1" process-status="error ">
+            <el-step v-for="(item,index) in information.data" :status="index!=0?'finish ':'error'" icon='el-icon-caret-top' :title="item.context" :description="item.time"></el-step>
+          </el-steps>
+        </div>
+        <div v-else>
+          <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/le93cd5an8" alt="" width="100%" height="6px">
+          <div class="error-img"><img src="../../assets/images/error.png" alt="" width="40%" height="200px" style="margin-left: 30%"></div>
+          <p style="margin-left: 30%;color: #F56C6C;font-size: 16px;font-weight: bold"><!--{{information.message}}-->单号错误或单号不存在！
+            <a href="http://www.kuaidi100.com/" style="font-size:14px;color: #00a0f0">&nbsp;&nbsp;<u>去快递100查询</u></a>
+          </p>
+        </div>
+      </el-dialog>
   </section>
 </template>
 
@@ -255,6 +275,11 @@
         }
       };
       return{
+        dialogTableVisible:false,
+        information:{status:''},
+        loading:false,
+
+
         handleErrorVal:'',
         //商户名
         userKey:'',
@@ -326,6 +351,61 @@
       };
     },
     methods:{
+      autonumber(val){
+        this.loading=true
+        this.getWaybill(val)
+      },
+      getWaybill(val){
+        if(val==''||val==null){
+          return
+        }
+        $axios.request({
+          url:'/public/express/autonumber/'+val,
+          method:'post',
+          statu:2,
+          _this:this,
+          success:res=>{
+            console.log("autonumber")
+            console.log(res)
+            if(res.data.auto.length<1){
+              //this.$message.error('运单号错误或不存在');
+              this.information.status='100';
+              this.dialogTableVisible=true
+              this.loading=false
+            }else{
+              this.queryNum(val,res.data.auto[0].comCode)
+            }
+          },
+          fail:e=>{
+            this.loading=false
+          }
+        })
+      },
+      queryNum(num,str){
+        $axios.request({
+          url:'/public/express/query/'+str+'/'+num,
+          method:'post',
+          statu:2,
+          _this:this,
+          success:res=>{
+            if(res.data){
+              this.information = res.data
+            }
+            else {
+              this.information.status='100';
+            }
+
+            this.loading=false
+            this.dialogTableVisible=true
+          },
+          fail:e=>{
+            this.loading=false
+            this.dialogTableVisible=false
+          }
+        })
+      },
+
+
       tableRowClassName({row, rowIndex}) {
         let back = {}
         if (row.typeId === 1) {

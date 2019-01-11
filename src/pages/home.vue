@@ -3,11 +3,12 @@
     <!--导航-->
     <section class="home-header home-header-second" ref="header">
       <el-row>
-        <el-col :span="3" class="clearfix">
+        <el-col :span="4" class="clearfix">
           <!--<img :src="funwlCompany.logoUrl" style="max-width: 100%;margin-left: 10px">-->
-          <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/pyze9bailibaili.png" style="max-width: 100%;margin-left: 10px">
+          <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/pyze9bailibaili.png" style="width: 50%;margin-left: 10px;">
+          <span style="color: black;margin-top: 30px;font-weight: bold;font-size: 14px;"> 快递营收管理系统</span>
         </el-col>
-        <el-col :span="16">
+        <el-col :span="15">
           <section class="home-nav">
             <el-menu
               :default-active="$route.path"
@@ -19,20 +20,21 @@
               unique-opened router
             >
               <template v-for="(item,index) in navData">
-                <el-submenu :index="index+''" v-if="item.sysMenus.length>1">
+                <el-submenu :index="index+''" v-if="item.sysMenus.length>1 && item.url!=1">
                   <template slot="title"><i :class="item.icon"></i><span slot="title">{{item.title}}</span></template>
-                  <el-menu-item v-for="child in item.sysMenus" :index="child.url" :key="child.url"
+                  <el-menu-item v-for="child in item.sysMenus" :index="child.url" :key="child.title" disabled
                                 class="home-nav-item">
                     <span class="children-li">{{child.title}}</span>
                   </el-menu-item>
+
                 </el-submenu>
-                  <el-menu-item v-if="item.sysMenus.length===0" :index="item.url">
+                  <el-menu-item v-if="item.sysMenus.length===0 && item.url!=1" :index="item.url">
                     <template slot="title"><i :class="item.icon"></i>
                       <span slot="title">{{item.title}}</span>
                       <el-badge :value="$store.state.serviceNum" :max="99" type="warning" v-if="item.title=='客服/工单'">
                       </el-badge>
                     </template>
-                  </el-menu-item>
+                </el-menu-item>
               </template>
             </el-menu>
           </section>
@@ -381,8 +383,8 @@
       },
       //websocket
       initWebSocket() { //初始化weosocket
-        const wsuri = 'ws://www.funwl.com:8090/test/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
-        // const wsuri = 'ws://www.funwl.com:8090/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
+        // const wsuri = 'ws://www.funwl.com:8090/test/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
+        const wsuri = 'ws://www.funwl.com:8090/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
         // const wsuri = 'ws://10.10.10.45:8080/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
         this.websock = new WebSocket(wsuri);
         this.websock.onopen = this.websocketonopen;

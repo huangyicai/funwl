@@ -277,9 +277,19 @@
         <el-card class="kd-customer-main  clearfix">
           <div slot="header" class="clearfix">
             <span class="kd-customer-main-title el-icon-service">{{customerTabName}}</span>&nbsp;&nbsp;&nbsp;
-            <el-button @click='refreshService()' type="primary" icon="el-icon-refresh" size="small" v-if="customerTabName=='全部工单'">刷新</el-button>
+            <el-button @click='refreshService()' type="primary" icon="el-icon-refresh" size="small" v-if="customerTabName=='全部工单'">
+              刷新
+            </el-button>
+            <el-button @click='forwarding(serviceId)' type="primary" icon="el-icon-sort" size="small" v-if="customerTabName=='全部工单'">
+              批量分配
+            </el-button>
 
-            <el-button @click='forwarding(serviceId)' type="primary" icon="el-icon-sort" size="small" v-if="customerTabName=='全部工单'">批量分配</el-button>
+            <el-button @click='batchReplyBefore(serviceId)' type="primary" icon="el-icon-sort" size="small" v-if="customerTabName=='我处理的'">
+              批量回复
+            </el-button>
+            <el-button @click='batchfinish(serviceId)' type="primary" icon="el-icon-sort" size="small" v-if="customerTabName=='我处理的'">
+              批量完结
+            </el-button>
           </div>
           <div class="kd-customer-main-all">
             <el-table
@@ -401,8 +411,12 @@
               </el-table-column>
               <el-table-column
 
-                label="运单号"
-                prop="waybillNumber">
+                label="运单号(点击查看物流信息)"
+                >
+                <template slot-scope="scope">
+                  <el-button type="text" :loading="loading" @click="autonumber(scope.row.waybillNumber)"><u>{{scope.row.waybillNumber}}</u></el-button>
+                </template>
+
               </el-table-column>
               <el-table-column
 
@@ -472,7 +486,21 @@
         </el-card>
       </div>
     </div>
-
+    <el-dialog :title="'物流信息'" :visible.sync="dialogTableVisible" center>
+          <div  v-if="information.status==200">
+            <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/le93cd5an8" alt="" width="100%" height="6px">
+            <el-steps direction="vertical" :active="1" process-status="error ">
+              <el-step v-for="(item,index) in information.data" :status="index!=0?'finish ':'error'" icon='el-icon-caret-top' :title="item.context" :description="item.time"></el-step>
+            </el-steps>
+          </div>
+          <div v-else>
+            <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/le93cd5an8" alt="" width="100%" height="6px">
+            <div class="error-img"><img src="../../assets/images/error.png" alt="" width="40%" height="200px" style="margin-left: 30%"></div>
+            <p style="margin-left: 30%;color: #F56C6C;font-size: 16px;font-weight: bold"><!--{{information.message}}-->单号错误或单号不存在！
+              <a href="http://www.kuaidi100.com/" target="view_window" style="font-size:14px;color: #00a0f0" >&nbsp;&nbsp;<u>去快递100查询</u></a>
+            </p>
+          </div>
+    </el-dialog>
     <el-dialog :visible.sync="transferUser" @close="noUserListData" :title="user.name" center width="65%">
 
       <el-row>
@@ -529,6 +557,24 @@
         <el-button type="primary" @click="yesUserListData()"  size="small">确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog
+      title="批量回复"
+      :visible.sync="batchReply"
+      width="30%"
+    >
+      回复内容：
+      <el-input
+        type="textarea"
+        :rows="4"
+        placeholder="请输入内容"
+        v-model="textareaBatchReply">
+      </el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="batchReplyBtn(textareaBatchReply)" size="small" :loading="submitLoading">发送</el-button>
+      </span>
+    </el-dialog>
+
     <el-dialog
       title="转发工单"
       :visible.sync="dialogVisible"
@@ -613,6 +659,13 @@
     name: "customerService",
     data() {
       return {
+        textareaBatchReply:'',
+        batchReply:false,
+
+
+        dialogTableVisible:false,
+        information:{status:''},
+        loading:false,
 
         serviceId:'',
         transferUser:false,
@@ -637,7 +690,6 @@
         handleErrorVal:'',
         replyMap:{},
         replyServiceList:[],
-
         downloadExcelUrl:'',
         display:sessionStorage.getItem('funwlDisplay'),
         submitRuleFormLoading: false,
@@ -1098,6 +1150,59 @@
           }
         })
       },
+      autonumber(val){
+        this.loading=true
+        this.getWaybill(val)
+      },
+      getWaybill(val){
+        if(val==''||val==null){
+          return
+        }
+        $axios.request({
+          url:'/public/express/autonumber/'+val,
+          method:'post',
+          statu:2,
+          _this:this,
+          success:res=>{
+            console.log("autonumber")
+            console.log(res)
+            if(res.data.auto.length<1){
+              //this.$message.error('运单号错误或不存在');
+              this.information.status='100';
+              this.dialogTableVisible=true
+              this.loading=false
+            }else{
+              this.queryNum(val,res.data.auto[0].comCode)
+            }
+          },
+          fail:e=>{
+            this.loading=false
+          }
+        })
+      },
+      queryNum(num,str){
+        $axios.request({
+          url:'/public/express/query/'+str+'/'+num,
+          method:'post',
+          statu:2,
+          _this:this,
+          success:res=>{
+            if(res.data){
+              this.information = res.data
+            }
+            else {
+              this.information.status='100';
+            }
+
+            this.loading=false
+            this.dialogTableVisible=true
+          },
+          fail:e=>{
+            this.loading=false
+            this.dialogTableVisible=false
+          }
+        })
+      },
       handleSelectionChange(val) {
         let arr = [];
         if (val.length > 0) {
@@ -1335,6 +1440,95 @@
           }
 
         });
+      },
+      //批量完结
+      batchfinish(ids){
+        let _this = this
+        this.$confirm('此操作将完结所选工单, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          $axios.request({
+            url: '/express/service/batch/finish/',
+            method: 'get',
+            statu: 1,
+            _this: _this,
+            data: {
+              handleId: ids
+            },
+            success: res => {
+              _this.$message({
+                type: 'success',
+                message: '操作成功',
+                duration: 500,
+              });
+              _this.getCustomerInfo({
+                page: _this.currentPage,
+                size: _this.pageSize,
+                type: _this.ruleForm.typeId,
+                status: _this.ruleForm.customerErrorType,
+                waybillNumber: _this.ruleForm.waybillNumber,
+                keyName: _this.ruleForm.keyName,
+                accountUserList:_this.ruleForm.accountUserList.join(),
+                createTime: _this.ruleForm.createTime,
+                endTime: _this.ruleForm.endTime,
+                receiveSolt:_this.ruleForm.receiveSolt,
+                endSolt:_this.ruleForm.endSolt
+              })
+            },
+            fail: () => {
+            }
+          })
+
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消'
+          });
+        });
+      },
+      batchReplyBefore(ids){
+        if(ids==''){
+          this.$message.error({
+            message: '请选择工单',
+            duration: 1000,
+          })
+          return;
+        }
+        this.handleId = ids;
+        this.batchReply = true;
+      },
+      //批量回复工单
+      batchReplyBtn(val){
+        this.submitLoading=true
+
+        let param = {
+          handleId:this.handleId,
+          content:val
+        }
+        $axios.request({
+          url: '/express/service/batch/reply',
+          method: 'post',
+          data: param,
+          statu: 2,
+          _this: this,
+          success: res => {
+            this.submitLoading=false
+            this.batchReply = false;
+            this.$message({
+              type: 'success',
+              message: '回复成功',
+              duration: 1000,
+            })
+            this.textareaBatchReply=''
+          },
+          fail: res => {
+            this.batchReply = false;
+            this.submitLoading=false
+            console.log(res);
+          }
+        })
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();

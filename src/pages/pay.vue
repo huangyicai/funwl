@@ -29,26 +29,26 @@
                   </el-button>-->
 
 
-                  <el-button class="fl offerPay" type="warning" plain style="margin-left: 40px" @click="totalPrice(1000)">
+                  <!--<el-button class="fl offerPay" type="warning" plain style="margin-left: 40px" @click="totalPrice(1000)">
                     <span style="font: 22px Extra large;">1个月</span>
                     <div class="fontPay">
-                      <!--<p class="original-price">原价:<span>￥{{item.originalPrice}}.0</span></p>-->
+                      &lt;!&ndash;<p class="original-price">原价:<span>￥{{item.originalPrice}}.0</span></p>&ndash;&gt;
                       <p style="font-weight: bold;">优惠价<span>￥1000.0</span></p>
                     </div>
-                  </el-button>
+                  </el-button>-->
 
-                  <el-button class="fl offerPay" type="danger" plain style="margin-left: 40px" @click="totalPrice(9600)">
+                  <el-button class="fl offerPay" type="danger" plain style="margin-left: 40px" @click="totalPrice(200)">
+                    <span style="font: 22px Extra large;">1个月</span>
+                    <div class="fontPay">
+                      <p class="original-price">原价:<span>￥1000.0</span></p>
+                      <p style="font-weight: bold;">优惠价<span>￥200.0</span></p>
+                    </div>
+                  </el-button>
+                  <el-button class="fl offerPay" type="warning" plain style="margin-left: 40px" @click="totalPrice(2000)">
                     <span style="font: 22px Extra large;">12个月</span>
                     <div class="fontPay">
                       <p class="original-price">原价:<span>￥12000.0</span></p>
-                      <p style="font-weight: bold;">优惠价<span>￥9600.0</span></p>
-                    </div>
-                  </el-button>
-                  <el-button class="fl offerPay" type="warning" plain style="margin-left: 40px" @click="totalPrice(16000)">
-                    <span style="font: 22px Extra large;">24个月</span>
-                    <div class="fontPay">
-                      <p class="original-price">原价:<span>￥19200.0</span></p>
-                      <p style="font-weight: bold;">优惠价<span>￥16000.0</span></p>
+                      <p style="font-weight: bold;">优惠价<span>￥2000.0</span></p>
                     </div>
                   </el-button>
 
@@ -102,7 +102,7 @@
               content:"持续优惠中...",
               sysPrices:[],
               totalItemObj:{
-                actualPrice:"0.00"
+                actualPrice:"0"
               },
               platId:sessionStorage.getItem('funwlPlatId'),
             }

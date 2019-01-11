@@ -26,7 +26,7 @@
           <el-radio-group v-model="tabPosition" @change="tabChange">
             <el-radio-button label="数据分析" name="1"></el-radio-button>
             <el-radio-button label="利润分析" name="2"></el-radio-button>
-            <el-radio-button label="账单详情" name="3"></el-radio-button>
+            <el-radio-button label="收银管理" name="3"></el-radio-button>
           </el-radio-group>
         </div>
         <div class="kdPro-analysis-right-all  clearfix"  v-loading="kdDataLoading"  >
@@ -162,7 +162,7 @@
     data() {
       return {
         radio:'全部',
-        tabPosition: '账单详情',
+        tabPosition: '收银管理',
         indetNum: 23,
         treeData: [],
         defaultProps: {
@@ -267,6 +267,14 @@
         this.getInfo(this.checkedKeysData);
       },
       handelChange(val){
+        if(val==null||val==''){
+          this.$message({
+            type:'warning',
+            message:'请选择起始时间',
+            duration:1000,
+          })
+          return
+        }
         this.getNowDate(val);
         if (this.checkedKeysData.length===0){
           this.$message({
@@ -303,6 +311,7 @@
         this.getInfo(this.checkedKeysData)
       },
       getNowDate(date){
+
         let nowDate = date;
         let year = nowDate.getFullYear();
         let month = nowDate.getMonth()+1;
@@ -325,7 +334,7 @@
           case '利润分析':
             _this.$router.push('/kdProfits');
             break;
-          case '账单详情':
+          case '收银管理':
             _this.$router.push('/kdBillAnalysis');
             break;
         }

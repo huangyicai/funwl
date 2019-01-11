@@ -92,71 +92,6 @@
               </div>
           </el-card>
         </div>
-  <el-row>
-    <el-col :span="8">
-      <el-card  class="kd-index-header-card-notice">
-
-        <div slot="header" class="clearfix">
-          <div class="kd-index-header-right-title el-icon-bell kd-index-title">
-            公告
-          </div>
-        </div>
-        <div  class="kd-index-header-notice">
-          <el-collapse v-model="activeName" accordion >
-            <el-collapse-item  :name="item.id"  v-for="item in noticeData">
-              <template slot="title">
-                {{item.title}}&nbsp;&nbsp;&nbsp;<el-tag type="danger"  v-if="item.status===1"  size="mini">系统通知</el-tag>
-                &nbsp;<i class="header-icon el-icon-time"></i>
-              </template>
-              <div>{{item.content}}</div>
-            </el-collapse-item>
-          </el-collapse>
-        </div>
-      </el-card>
-    </el-col>
-    <el-col :span="16">
-      <el-card class="kd-index-card">
-        <div slot="header" class="clearfix">
-          <span class="el-icon-share fl kd-index-title">本月目的地单量分布</span>
-        </div>
-        <div class="kd-index-right-item kd-index-right-city clearfix">
-          <div class="city-accounted  fl">
-            <el-row class="city-accounted-item-title">
-              <el-col :span="8">省份</el-col>
-              <el-col :span="8">
-
-                <div class="city-accounted-item-cl">
-                  单量
-                  <span >
-                              <i  class="el-icon-caret-top" @click="sorting(1)"></i>
-                              <i  class="el-icon-caret-bottom"  style="margin-top: -5px"  @click="sorting(2)"></i>
-                            </span>
-                </div>
-              </el-col>
-              <el-col :span="8">
-
-                <div class="city-accounted-item-cl">
-                  比例
-                  <span>
-               <i  class="el-icon-caret-top" @click="sorting(1)"></i>
-               <i  class="el-icon-caret-bottom"  style="margin-top: -5px"  @click="sorting(2)"></i>
-               </span>
-                </div>
-              </el-col>
-            </el-row>
-            <div class="city-accounted-main">
-              <el-row class="city-accounted-item" v-for="item in provincesData">
-                <el-col :span="8">{{item.name}}</el-col>
-                <el-col :span="8">{{item.value}}</el-col>
-                <el-col :span="8">{{item.proportion}}</el-col>
-              </el-row>
-            </div>
-          </div>
-          <div class="city-china" style="height: 410px;width: 50%;position: absolute;top: 0;left:50%" ref="china" id="home_page_map"></div>
-        </div>
-      </el-card>
-    </el-col>
-  </el-row>
     <el-row>
       <el-col :span="16">
         <el-card  class="kd-index-card">
@@ -176,6 +111,74 @@
 
       </el-col>
     </el-row>
+
+    <el-row>
+      <el-col :span="8">
+        <el-card  class="kd-index-header-card-notice">
+
+          <div slot="header" class="clearfix">
+            <div class="kd-index-header-right-title el-icon-bell kd-index-title">
+              公告
+            </div>
+          </div>
+          <div  class="kd-index-header-notice">
+            <el-collapse v-model="activeName" accordion >
+              <el-collapse-item  :name="item.id"  v-for="item in noticeData">
+                <template slot="title">
+                  {{item.title}}&nbsp;&nbsp;&nbsp;<el-tag type="danger"  v-if="item.status===1"  size="mini">系统通知</el-tag>
+                  &nbsp;<i class="header-icon el-icon-time"></i>
+                </template>
+                <div>{{item.content}}</div>
+              </el-collapse-item>
+            </el-collapse>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="16">
+        <el-card class="kd-index-card">
+          <div slot="header" class="clearfix">
+            <span class="el-icon-share fl kd-index-title">本月目的地单量分布</span>
+          </div>
+          <div class="kd-index-right-item kd-index-right-city clearfix">
+            <div class="city-accounted  fl">
+              <el-row class="city-accounted-item-title">
+                <el-col :span="8">省份</el-col>
+                <el-col :span="8">
+
+                  <div class="city-accounted-item-cl">
+                    单量
+                    <span >
+                              <i  class="el-icon-caret-top" @click="sorting(1)"></i>
+                              <i  class="el-icon-caret-bottom"  style="margin-top: -5px"  @click="sorting(2)"></i>
+                            </span>
+                  </div>
+                </el-col>
+                <el-col :span="8">
+
+                  <div class="city-accounted-item-cl">
+                    比例
+                    <span>
+               <i  class="el-icon-caret-top" @click="sorting(1)"></i>
+               <i  class="el-icon-caret-bottom"  style="margin-top: -5px"  @click="sorting(2)"></i>
+               </span>
+                  </div>
+                </el-col>
+              </el-row>
+              <div class="city-accounted-main">
+                <el-row class="city-accounted-item" v-for="item in provincesData">
+                  <el-col :span="8">{{item.name}}</el-col>
+                  <el-col :span="8">{{item.value}}</el-col>
+                  <el-col :span="8">{{item.proportion}}</el-col>
+                </el-row>
+              </div>
+            </div>
+            <div class="city-china" style="height: 410px;width: 50%;position: absolute;top: 0;left:50%" ref="china" id="home_page_map"></div>
+          </div>
+        </el-card>
+      </el-col>
+
+
+  </el-row>
 
 
   </section>

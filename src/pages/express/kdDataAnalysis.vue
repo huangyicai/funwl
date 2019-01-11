@@ -33,7 +33,7 @@
               <el-radio-group v-model="tabPosition" @change="tabChange">
                 <el-radio-button label="数据分析" name="1"></el-radio-button>
                 <el-radio-button label="利润分析" name="2"></el-radio-button>
-                <el-radio-button label="账单详情" name="3"></el-radio-button>
+                <el-radio-button label="收银管理" name="3"></el-radio-button>
               </el-radio-group>
             </div>
               <div class="data-analysis-right-main"   v-loading="kdDataLoading">
@@ -305,7 +305,7 @@
           case '利润分析':
             _this.$router.push('/kdProfits');
             break;
-          case '账单详情':
+          case '收银管理':
             _this.$router.push('/kdBillAnalysis');
             break;
         }
@@ -403,6 +403,14 @@
         this.month = year+'-'+month;
       },
       handelChange(val){
+        if(val==null||val==''){
+          this.$message({
+            type:'warning',
+            message:'时间不能为空',
+            duration:1000,
+          })
+          return
+        }
         this.getNowDate(val)
         if (this.checkedKeysData.length===0){
           this.$message({

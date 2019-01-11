@@ -187,7 +187,7 @@
         tableData: [],
         searchForm: {},
         khBillLoading: false,
-        uploadTime: '2018-09',
+        uploadTime: '',
         treeData: [],
         defaultProps: {
           children: 'sysUserInfos',
@@ -200,21 +200,23 @@
           value: '0',
           label: '全部'
         }, {
-          value: '2',
-          label: '未付款'
-        }, {
-          value: '3',
-          label: '已付款'
-        }, {
+          value: '-10',
+          label: '未结清'
+        } ,
+          {
           value: '4',
-          label: '已完结'
-        },
+          label: '已结清'
+        }/*,
+          , {
+            value: '3',
+            label: '已付款'
+          },
           {
             value: '5',
             label: '未结清'
-          }
+          }*/
         ],
-        killStatus: '0',
+        killStatus: '-10',
         currentPage: 1,
         pageSize: 10,
         totalNum: 0,
@@ -322,7 +324,7 @@
       },
       //play
       getNowDate(date) {
-        if(date==null||date==''){
+        if(date==null||date==''||this.uploadTime==''){
           this.getBillList(this.currentPage, this.pageSize, '', this.killStatus, this.userId)
           return;
         }
@@ -504,7 +506,10 @@
       if(JSON.stringify(this.$route.params) ==="{}"){
         this.getNowDate(new Date());
       }else{
+        console.log(this.uploadTime)
+        console.log('-----------------')
         this.uploadTime = this.$route.params.time;
+        console.log(this.uploadTime)
         this.killStatus = this.$route.params.status
         this.getBillList(this.currentPage, this.pageSize, this.uploadTime, this.killStatus, this.userId)
       }

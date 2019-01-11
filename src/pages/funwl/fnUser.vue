@@ -8,7 +8,6 @@
     </div>
     <div class="fun-user-table  clearfix">
       <el-table
-        height="600px"
         :data="tableData"
         v-loading="tableLoading"
         border
@@ -28,20 +27,21 @@
           >
         </el-table-column>
         <el-table-column
-          prop="province"
-          label="省份"
+          label="地址"
           >
+          <template slot-scope="scope">
+            <div>
+              <p>
+                {{scope.row.province+scope.row.city+scope.row.address}}
+              </p>
+            </div>
+          </template>
         </el-table-column>
-        <el-table-column
+        <!--<el-table-column
           prop="city"
           label="城市"
           >
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="地址"
-        >
-        </el-table-column>
+        </el-table-column>-->
         <el-table-column
           prop="createTime"
           label="注册日期"
@@ -61,6 +61,22 @@
           prop="telephone"
           label="联系电话"
           width="130">
+        </el-table-column>
+        <el-table-column
+          label="客户使用情况"
+          width="250"
+        >
+          <template slot-scope="scope">
+            <p style="margin-top: 5px">最近登录时间：
+              <el-tag size="small" type="danger">{{scope.row.loginTime}}</el-tag>
+            </p>
+            <p style="margin-top: 5px">注册商户数量：
+              <el-tag size="small">{{scope.row.platformId}}家</el-tag>
+            </p>
+            <p style="margin-top: 5px">总账单数量&nbsp;&nbsp;&nbsp; ：
+              <el-tag size="small" type="warning">{{scope.row.parentId}}个</el-tag>
+            </p>
+          </template>
         </el-table-column>
         <el-table-column
           label="用户状态"
@@ -83,7 +99,7 @@
           width="100">
           <template slot-scope="scope">
             <el-button @click="handleClickDel(scope.row)" type="text" size="small">删除</el-button>
-            <el-button type="text" size="small" @click="handleClickEdit(scope.row)" >编辑</el-button>
+            <!--<el-button type="text" size="small" @click="handleClickEdit(scope.row)" >编辑</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -308,10 +324,12 @@
         // console.log('active item:', val);
       },
       handleSizeChange(val) {
-        console.log(val);
+        this.pageSize = val;
+        this.getList()
       },
       handleCurrentChange(val) {
-
+        this.currentPage = val;
+        this.getList()
       },
       handleChange(value) {
         console.log(value);
@@ -374,15 +392,21 @@
       },
       getList(){
         this.tableLoading = true;
+        let pages = {
+          page:this.currentPage,
+          size:this.pageSize
+        }
         $axios.request({
           url:'/fn/companys',
           method:'get',
           _this:this,
+          data:pages,
           statu:2,
           success:res=>{
             console.log(res);
-            this.tableData = res.data;
+            this.tableData = res.data.records;
             this.tableLoading = false;
+            this.totalNum = res.data.total;
           },
           fail:res=>{
             this.tableLoading = false;

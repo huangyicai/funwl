@@ -168,7 +168,7 @@ let routes = [
     children: [
         {path: '/kdProfits', component: kdProfits, name: '利润分析',meta:{requireAuth: true}},
       {path: '/kdData', component: kdData, name: '数据分析',meta:{requireAuth: true}},
-      {path: '/kdBillAnalysis', component: kdBillAnalysis, name: '账单详情',meta:{requireAuth: true}},
+      {path: '/kdBillAnalysis', component: kdBillAnalysis, name: '收营管理',meta:{requireAuth: true}},
 
     ]
   },

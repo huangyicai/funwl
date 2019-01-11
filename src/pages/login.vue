@@ -4,7 +4,8 @@
       <el-col :span="10">
         <div class="login-main">
           <div class="login-title">
-            <p>百里百里</p>
+            <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/pyze9bailibaili.png" style="max-width: 100%;">
+            <span>快递营收管理系统</span>
           </div>
           <el-form ref="form" :model="form" size="medium" :rules="rules" class="login-main-form">
             <el-form-item prop="username">
@@ -164,7 +165,7 @@
 
     width: 85%;
     margin: 0 auto;
-    margin-top: 60px;
+    margin-top: 30px;
     .onsubmit {
       width: 100%;
       background-color: #00AAFF;
@@ -181,8 +182,8 @@
     font: normal 700 25px/25px "Microsoft YaHei";
     text-align: center;
     margin-top: 70px;
-    p {
-      font: normal 500 20px/35px "Microsoft YaHei";
+    span {
+      font: normal 500 25px/25px "Microsoft YaHei";
     }
 
   }

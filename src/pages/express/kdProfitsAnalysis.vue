@@ -28,7 +28,7 @@
           <el-radio-group v-model="tabPosition" @change="tabChange">
             <el-radio-button label="数据分析" name="1"></el-radio-button>
             <el-radio-button label="利润分析" name="2"></el-radio-button>
-            <el-radio-button label="账单详情" name="3"></el-radio-button>
+            <el-radio-button label="收银管理" name="3"></el-radio-button>
           </el-radio-group>
         </div>
         <div class="kdPro-analysis-right-all"  v-loading="kdDataLoading">
@@ -42,6 +42,16 @@
               size="small"
               placeholder="请选择日期"
               @change="handelChange">
+            </el-date-picker>
+            --
+            <el-date-picker
+              v-model="monthEnd"
+              type="month"
+              format="yyyy-MM"
+              prefix-icon="el-icon-time"
+              size="small"
+              placeholder="请选择日期"
+              @change="handelEndChange">
             </el-date-picker>
           </div>
 
@@ -167,6 +177,7 @@
           value: 'id'
         },
         month: '',
+        monthEnd: '',
         kdDataLoading:false,
         checkedKeysData:[],
         profitsData:{
@@ -222,6 +233,7 @@
           method:'post',
           data:{
             date:this.month,
+            endDate:this.monthEnd,
             userId:arr.join()
           },
           _this:this,
@@ -294,7 +306,45 @@
         }
         this.getInfo(this.checkedKeysData);
       },
+      getEndDate(date){
+        let nowDate = date;
+        let year = nowDate.getFullYear();
+        let month = nowDate.getMonth()+1;
+        month = month<10? '0'+month:month;
+        this.monthEnd = year+'-'+month;
+      },
+      handelEndChange(val){
+        if(val!=='' && val!==null){
+          if(new Date(this.monthEnd).getTime()<=new Date(this.month).getTime()){
+            this.$message({
+              type:'warning',
+              message:'结束时间需大于开始时间',
+              duration:1000,
+            })
+            this.monthEnd=''
+            return;
+          }
+          this.getEndDate(val);
+        }
+        if (this.checkedKeysData.length===0){
+          this.$message({
+            type:'warning',
+            message:'请先在侧边栏选择客户',
+            duration:500,
+          })
+          return false
+        }
+        this.getInfo(this.checkedKeysData)
+      },
       handelChange(val){
+        if(val==null||val==''){
+          this.$message({
+            type:'warning',
+            message:'请选择起始时间',
+            duration:1000,
+          })
+          return
+        }
         this.getNowDate(val);
         if (this.checkedKeysData.length===0){
           this.$message({
@@ -322,7 +372,7 @@
           case '利润分析':
             _this.$router.push('/kdProfits');
             break;
-          case '账单详情':
+          case '收银管理':
             _this.$router.push('/kdBillAnalysis');
             break;
         }

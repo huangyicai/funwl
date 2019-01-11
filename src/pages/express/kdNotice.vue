@@ -154,6 +154,7 @@
         },
         selectedNode:[],
         tabPosition:'公告',
+        //platformId:sessionStorage.getetItem('funwlPlatId')==2?true:false,
         tableDataLoading:false,
         currentPage:1,
         pageSize:10,
