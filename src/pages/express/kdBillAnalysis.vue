@@ -375,13 +375,27 @@
       statusChange(val){
         this.getInfo(this.checkedKeysData);
       },
-
+      getTime(){
+        $axios.request({
+          url:'/express/total/getTime',
+          method:'get',
+          _this:this,
+          statu:1,
+          success:res=>{
+            this.month = res.data
+          },
+          fail:res=>{
+            console.log(res)
+          }
+        })
+      }
 
 
     },
     mounted() {
       this.getUserList();
-      this.getNowDate(new Date());
+      //this.getNowDate(new Date());
+      this.getTime();
     }
   };
 </script>

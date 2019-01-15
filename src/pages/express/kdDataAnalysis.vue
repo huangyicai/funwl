@@ -97,7 +97,6 @@
                   <el-col :span="15">
                     <div class="data-analysis-right-item">
                       <div class="data-analysis-right-item-img" ref="weightChart">
-
                       </div>
                     </div>
                   </el-col>
@@ -111,7 +110,7 @@
                 <div class="data-right-weight clearfix ">
                   <p class="data-right-weight-item fl"  v-for="item in weightData">
                     <span> {{item.name}}(kg)</span>
-                    <span> {{item.value}}</span>
+                    <span> {{item.value.toFixed(2)}}</span>
                     <span>{{item.proportion}}</span>
                   </p>
                 </div>
@@ -443,7 +442,10 @@
           title: {
             text: '本月重量区间分布',
             subtext: '数据分析  ',
-            x: 'center'
+            x: 'center',
+            textStyle:{
+              fontSize:30
+            }
           },
           tooltip: {
             trigger: 'item',
@@ -472,6 +474,9 @@
                   shadowOffsetX: 0,
                   shadowColor: 'rgba(100, 0, 0, 0.5)'
                 }
+              },
+              label:{
+                fontSize:18
               }
             }
           ]
@@ -510,11 +515,25 @@
         // 使用刚指定的配置项和数据显示图表。
         myChart.setOption(option);
       },
+      getTime(){
+        $axios.request({
+          url:'/express/total/getTime',
+          method:'get',
+          _this:this,
+          statu:1,
+          success:res=>{
+            this.month = res.data
+          },
+          fail:res=>{
+            console.log(res)
+          }
+        })
+      }
     },
     mounted() {
       this.getUserList();
-      this.getNowDate(new Date());
-
+      //this.getNowDate(new Date());
+      this.getTime()
     }
   };
 </script>
@@ -571,6 +590,8 @@
       .data-analysis-right-main{
         width: 100%;
         height: 800px;
+        font-size: 15px;
+        font-weight: bold;
         overflow-y: auto;
         overflow-x: hidden;
         box-sizing: border-box;
@@ -582,13 +603,16 @@
         margin-bottom: 20px;
         .data-analysis-right-item-num {
           display: inline-block;
-          width: 200px;
+          width: 300px;
+          font-size: 15px;
+          font-weight: bold;
           letter-spacing: 1px;
         }
         .data-analysis-right-item-weight {
           display: inline-block;
-          width: 200px;
-          font-size: 13px;
+          width: 300px;
+          font-size: 15px;
+          font-weight: bold;
           letter-spacing: 1px;
         }
         .accounted-weight {
@@ -672,7 +696,8 @@
           width: 420px;
           height: 420px;
           color: #495060;
-          font-size: 12px;
+          font-size: 15px;
+          font-weight: bold;
           border:1px solid #ededed;
           background-color: #fff;
           box-sizing: border-box;

@@ -139,7 +139,6 @@
         </div>
         <div class="kd-user-right-change  clearfix">
           <span class="iconfont icon-addressbook_fill  kd-user-title">添加特殊定价组</span>
-
           <el-button type="primary" size="mini"  @click="specialDialogFormVisible=true" v-if="display">添加关键词</el-button>
           <br>
           <br>
@@ -476,7 +475,6 @@
         <el-button type="primary" @click="yesUserListData()"  size="small">确 定</el-button>
       </div>
     </el-dialog>
-
     <el-dialog :visible.sync="testCalculation">
       <p style="font: 16px Extra large;font-weight: bold"><i class="el-icon-edit"></i>请选择模板目的地</p>
       <div  style="padding-top: 20px;padding-bottom: 35px">
@@ -511,7 +509,6 @@
         <el-button type="primary" @click="yesTestAddCalculation()"  size="small">确 定</el-button>
       </div>
     </el-dialog>
-
     <el-dialog :visible.sync="testWeightValue">
       <div  style="padding-top: 20px;padding-bottom: 35px">
         <el-form :inline="true" :model="formInline" class="demo-form-inline">
@@ -579,7 +576,6 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-
     <el-dialog :visible.sync="excelCalculation" title="定价表格上传"  @close='closeDialog'>
       <el-row>
         <el-col :span="11">
@@ -840,7 +836,6 @@
         <el-button type="primary" @click="submitForm('ruleForm2')" size="small">确 定</el-button>
       </div>
     </el-dialog>
-
     <el-dialog
       title=""
       :visible.sync="djCenterDialogVisible"
@@ -849,6 +844,15 @@
       <span>是否也需要复制特殊定价组：</span>
       <el-radio v-model="radioYes" label="1" border>需要</el-radio>
       <el-radio v-model="radioYes" label="2" border>不需要</el-radio>
+      <br> <br>
+
+      <div v-if="radioYes==1">
+        <span>&nbsp;&nbsp;&nbsp;
+          是否删除原有特殊定价组：
+        </span>
+        <el-radio v-model="radioCopy" label="1" border>是</el-radio>
+        <el-radio v-model="radioCopy" label="2" border>否</el-radio>
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="djCenterDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="djCenterDialogVisibleBut">确 定</el-button>
@@ -916,6 +920,7 @@
         djCenterDialogVisible:false,
         djVal:'',
         radioYes:'2',
+        radioCopy:'2',
         UserListProps:{
           label: 'name',
           key: 'id',
@@ -2158,7 +2163,7 @@
           background: 'rgba(0, 0, 0, 0.7)'
         });
         $axios.request({
-          url: '/express/pricingGroup/customer/type/' + this.id + '/' + this.djVal+'/'+this.radioYes,
+          url: '/express/pricingGroup/customer/type/' + this.id + '/' + this.djVal+'/'+this.radioYes+"/"+this.radioCopy,
           method: 'post',
           _this: this,
           statu: 2,

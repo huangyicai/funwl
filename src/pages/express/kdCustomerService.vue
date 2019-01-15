@@ -1444,6 +1444,13 @@
       //批量完结
       batchfinish(ids){
         let _this = this
+        if(ids==''){
+          this.$message.error({
+            message: '请选择工单',
+            duration: 1000,
+          })
+          return;
+        }
         this.$confirm('此操作将完结所选工单, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',

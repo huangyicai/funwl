@@ -106,7 +106,7 @@
           <div slot="header" class="clearfix">
             <span class="el-icon-share fl kd-index-title">本月重量区间分布</span>
           </div>
-          <div style="width: 100%;height: 425px"  ref="weightChart"></div>
+          <div style="width: 100%;height: 425px;font-size: 25px;font-weight: bold"  ref="weightChart"></div>
         </el-card>
 
       </el-col>
@@ -444,7 +444,7 @@
             {
               name: '重量区间分布',
               type: 'pie',
-              radius: '55%',
+              radius: '60%',
               center: ['50%', '60%'],
               data: data.seriesData,
               itemStyle: {
@@ -453,6 +453,9 @@
                   shadowOffsetX: 0,
                   shadowColor: 'rgba(0, 0, 0, 0.5)'
                 }
+              },
+              label:{
+                fontSize:16
               }
             }
           ]
@@ -755,14 +758,31 @@
         myChart.setOption(option);
 
       },
+      getTime(){
+        $axios.request({
+          url:'/express/total/getTime',
+          method:'get',
+          _this:this,
+          statu:1,
+          success:res=>{
+            this.month = res.data
+
+
+            this.getMonthInfo();
+            this.createMap();
+            this.getEveryDayNum();
+          },
+          fail:res=>{
+            console.log(res)
+          }
+        })
+      }
 
     },
     mounted(){
-      this.getNowDate(new Date())
-      this.getMonthInfo();
+      //this.getNowDate(new Date())
+      this.getTime();
       this.getNotice();
-      this.createMap();
-      this.getEveryDayNum();
 
 
 
@@ -837,6 +857,7 @@
     .kd-index-header-notice{
       width: 100%;
       height: 410px;
+      font-size: 18px;
       overflow-y: auto;
       overflow-x: hidden;
     }
@@ -860,7 +881,8 @@
       width: 420px;
       height: 420px;
       color: #495060;
-      font-size: 12px;
+      font-size: 15px;
+      font-weight: bold;
       border:1px solid #ededed;
       background-color: #fff;
       box-sizing: border-box;

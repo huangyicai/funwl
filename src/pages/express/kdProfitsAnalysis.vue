@@ -61,7 +61,7 @@
             </div>
             <div class="kdPro-analysis-right-header-item">
               <el-tooltip   effect="dark" content="已付款账单的全部金额！" placement="bottom">
-                <span class="el-icon-document">&nbsp;实收：{{profitsData.totalPaid}}</span>
+                <span>&nbsp;￥实收：{{profitsData.totalPaid}}</span>
               </el-tooltip>
             </div>
             <div class="kdPro-analysis-right-header-item">
@@ -102,7 +102,7 @@
             </div>
             <div class="kdPro-analysis-left-header-item">
               <el-tooltip   effect="dark" content="已发送（包括已付款）账单的全部金额！" placement="bottom">
-                <span class="el-icon-document">&nbsp;应收：{{profitsData.totalOffer}}</span>
+                <span>&nbsp;￥应收：{{profitsData.totalOffer}}</span>
               </el-tooltip>
             </div>
             <div class="kdPro-analysis-left-header-item">
@@ -399,12 +399,26 @@
           }
         })
       },
-
+      getTime(){
+        $axios.request({
+          url:'/express/total/getTime',
+          method:'get',
+          _this:this,
+          statu:1,
+          success:res=>{
+            this.month = res.data
+          },
+          fail:res=>{
+            console.log(res)
+          }
+        })
+      }
 
     },
     mounted() {
       this.getUserList();
-      this.getNowDate(new Date());
+      //this.getNowDate(new Date());
+      this.getTime()
     }
   };
 </script>
@@ -461,6 +475,8 @@
       .kdPro-analysis-right-all{
         width: 100%;
         height: 800px;
+        font-size: 15px;
+        font-weight: bold;
         overflow-y: auto;
         overflow-x: hidden;
         box-sizing: border-box;
