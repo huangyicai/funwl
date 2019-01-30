@@ -565,13 +565,23 @@
         </el-table-column>
 
         <el-table-column
-          label="价格（元）"
+          label="商户价格（元）"
           prop="offer"
           align="center">
           <template slot-scope="scope">
             <el-tag
               type="danger"
               disable-transitions>￥{{scope.row.offer}}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="成本价格（元）"
+          prop="offer"
+          align="center">
+          <template slot-scope="scope">
+            <el-tag
+              type="success"
+              disable-transitions>￥{{scope.row.cost}}</el-tag>
           </template>
         </el-table-column>
       </el-table>

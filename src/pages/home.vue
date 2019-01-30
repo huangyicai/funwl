@@ -384,8 +384,8 @@
       //websocket
       initWebSocket() { //初始化weosocket
         // const wsuri = 'ws://www.funwl.com:8090/test/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
-        const wsuri = 'ws://www.funwl.com:8090/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
-        // const wsuri = 'ws://10.10.10.45:8080/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
+        // const wsuri = 'ws://www.funwl.com:8090/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
+        const wsuri = 'ws://10.10.10.45:8080/websocket?id=' + sessionStorage.getItem('funwlId');//ws地址
         this.websock = new WebSocket(wsuri);
         this.websock.onopen = this.websocketonopen;
         this.websock.onerror = this.websocketonerror;

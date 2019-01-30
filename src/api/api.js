@@ -7,8 +7,8 @@ let routerTo = new Router({
   routes
 });
 // export const baseSrc = "http://www.funwl.com:8090/test";
-export const baseSrc = "http://www.funwl.com:8090";
-//  export const baseSrc = "http://10.10.10.45:8080";
+// export const baseSrc = "http://www.funwl.com:8090";
+ export const baseSrc = "http://10.10.10.45:8080";
 axios.defaults.baseURL = baseSrc;
 axios.interceptors.request.use(config => {
   if (config.method === 'post' || config.method === 'put') {

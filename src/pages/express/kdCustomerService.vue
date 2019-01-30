@@ -423,11 +423,20 @@
                 label="问题类型"
                 >
                 <template slot-scope="scope">
+                  <el-button type="text" icon="el-icon-edit" @click="updatetype(scope.row.id)"></el-button>
                   <el-tag size="small" type="danger" v-if="scope.row.typeId===1">{{scope.row.typeName}}</el-tag>
                   <el-tag size="small" type="success" v-if="scope.row.typeId===2">{{scope.row.typeName}}</el-tag>
                   <el-tag size="small" type="info" v-if="scope.row.typeId!=2&&scope.row.typeId!=1">{{scope.row.typeName}}</el-tag>
                 </template>
               </el-table-column>
+              <!--<el-table-column
+
+                label="理赔申请"
+              >
+                <template slot-scope="scope">
+                  <el-tag size="small" type="danger">理赔</el-tag>
+                </template>
+              </el-table-column>-->
               <el-table-column
 
                 label="商户名"
@@ -486,6 +495,20 @@
         </el-card>
       </div>
     </div>
+    <el-dialog :title="'修改问题类型'" :visible.sync="updateTypeDialog" width="30%" center>
+      <el-select v-model="typeModification" placeholder="请选择" style="margin-left: 30%">
+        <el-option
+          v-for="item in errorTypeData"
+          :key="item.id"
+          :label="item.typeName"
+          :value="item.id">
+        </el-option>
+      </el-select>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="updateTypeDialog=false">取 消</el-button>
+        <el-button type="primary" @click="updateTypeBtn"  size="small">确 定</el-button>
+      </div>
+    </el-dialog>
     <el-dialog :title="'物流信息'" :visible.sync="dialogTableVisible" center>
           <div  v-if="information.status==200">
             <img src="https://funwl.oss-cn-hangzhou.aliyuncs.com/images/le93cd5an8" alt="" width="100%" height="6px">
@@ -659,6 +682,10 @@
     name: "customerService",
     data() {
       return {
+        updateTypeDialog:false,
+        updateTypeId:'',
+        typeModification:'',
+
         textareaBatchReply:'',
         batchReply:false,
 
@@ -1149,6 +1176,37 @@
 
           }
         })
+      },
+      updateTypeBtn(){
+        if(this.typeModification==''){
+          this.updateTypeDialog=false
+          return;
+        }
+        $axios.request({
+          url:'/express/service/type/'+this.updateTypeId+"/"+this.typeModification,
+          method:'post',
+          statu:2,
+          _this:this,
+          success:res=>{
+            this.customerData.forEach(v=>{
+              if(v.id==this.updateTypeId){
+                console.log(res.data)
+                v.typeId=res.data.typeId
+                v.typeName=res.data.typeName
+              }
+            })
+            console.log(this.customerData)
+            this.typeModification==''
+            this.updateTypeDialog=false
+          },
+          fail:e=>{
+            this.updateTypeDialog=false
+          }
+        })
+      },
+      updatetype(id){
+        this.updateTypeId = id
+        this.updateTypeDialog=true
       },
       autonumber(val){
         this.loading=true

@@ -9,9 +9,15 @@
               <el-radio :label="item.id"  v-for="item in errorTypeData">{{item.typeName}}</el-radio>
             </el-radio-group>
           </el-form-item>
+          <!--<el-form-item label="理赔">
+            <el-radio-group v-model="ruleForm.resource">
+              <el-radio border label="1">申请理赔</el-radio>
+              <el-radio border label="2">不申请</el-radio>
+            </el-radio-group>
+          </el-form-item>-->
           <el-form-item label="运单号" prop="waybillNumber">
             <el-input v-model="ruleForm.waybillNumber">
-              <el-button slot="append"  type="primary" icon="el-icon-search" @click="autonumber(ruleForm.waybillNumber)">查询物流</el-button>
+              <el-button slot="append"  type="primary" :loading="loading" icon="el-icon-search" @click="autonumber(ruleForm.waybillNumber)">查询物流</el-button>
             </el-input>
           </el-form-item>
           <el-form-item label="手机号" prop="phone">
@@ -289,6 +295,7 @@
           phone:sessionStorage.getItem('funwlTelephone'),
           contacts:sessionStorage.getItem('funwlPerson'),
           enclosure:this.imgUploadSrc,
+          resource:'2'
         },
         rules: {
           waybillNumber: [
@@ -352,6 +359,10 @@
     },
     methods:{
       autonumber(val){
+        if(val==''||val==null){
+          this.$message.error('请填写运单号');
+          return;
+        }
         this.loading=true
         this.getWaybill(val)
       },

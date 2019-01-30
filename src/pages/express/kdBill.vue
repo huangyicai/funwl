@@ -179,7 +179,7 @@
                   :before-upload="uploadBefore"
                   :file-list="fileList">
                   <el-button type="warning" size="mini" :loading="kdBillLoading" plain class="kd-bill-type-btn"
-                             icon="el-icon-edit">修改
+                             icon="el-icon-upload2">替换
                   </el-button>
                 </el-upload>
                 <el-button type="primary" size="mini" :loading="kdBillLoading" plain
@@ -668,17 +668,23 @@
         if (res.code === 0) {
           this.$message({
             type: 'success',
-            message: '修改成功！',
+            message: '替换成功！',
             duration: 500,
           })
           this.getBillList(this.currentPage, this.pageSize, this.uploadTime, this.killStatus, this.userId)
           this.fileList = [];
         } else {
-          this.$message({
-            type: 'warning',
-            message: res.info + '',
-            duration: 500,
+          let str =''
+          res.data.forEach(v=>{
+            str+="<p  style='font-weight: bold;text-align: left;color: red;font-size: 15px;overflow: hidden;" +
+              "text-overflow:ellipsis;" +
+              "white-space: nowrap;'>"+ v+"<p>"
           })
+          this.$alert("<div>"+str+"</div>", '表格错误', {
+            dangerouslyUseHTMLString: true,
+            type: 'warning',
+            center: true
+          });
         }
         this.fileList = [];
       },
@@ -1163,13 +1169,18 @@
             duration: 500,
           })
           _this.getBillList(_this.currentPage, _this.pageSize, _this.uploadTime, _this.killStatus, _this.userId)
-
         } else {
-          this.$message({
-            type: 'error',
-            message: res.info.toString(),
-            duration: 500,
+          let str =''
+          res.data.forEach(v=>{
+            str+="<p  style='font-weight: bold;text-align: left;color: red;font-size: 15px;overflow: hidden;" +
+              "text-overflow:ellipsis;" +
+              "white-space: nowrap;'>"+ v+"<p>"
           })
+          this.$alert("<div>"+str+"</div>", '表格错误', {
+            dangerouslyUseHTMLString: true,
+            type: 'warning',
+            center: true
+          });
         }
 
         setTimeout(() => {

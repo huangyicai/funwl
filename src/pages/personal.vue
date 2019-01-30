@@ -281,6 +281,14 @@
       <div class="personal-right-change  clearfix">
         <el-tabs v-model="specialCityListValue"  @tab-click="specialHandleClick">
           <el-tab-pane :label="item.keyName" :name="item.id.toString()"  v-for="(item,index) in specialCityList">
+            <span v-if="item.status==1">
+                特殊定价方式:<el-tag  type="warning">取代定价</el-tag>
+              </span>
+            <span v-else>
+               特殊定价方式:<el-tag type="danger">追加定价</el-tag>
+              </span>
+            <br>
+            <br>
             <div class="personal-collapse-content clearfix " >
               <div class="personal-collapse fl" style="width: 39%">
                 <div class="personal-collapse-title  clearfix">首重

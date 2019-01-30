@@ -203,18 +203,20 @@
                     this.pricedBool=true
                     this.getUploadInfo()
                   } else {
-                    this.$message({
-                      type:'error',
-                      message:res.info.toString(),
-                      duration:500,
+                    let str =''
+                    res.data.forEach(v=>{
+                      str+="<p  style='font-weight: bold;text-align: left;color: red;font-size: 15px;overflow: hidden;" +
+                        "text-overflow:ellipsis;" +
+                        "white-space: nowrap;'>"+ v+"<p>"
                     })
+                    this.$alert("<div>"+str+"</div>", '表格错误', {
+                      dangerouslyUseHTMLString: true,
+                      type: 'warning',
+                      center: true
+                    });
                   }
-                },1000
+                },500
               );
-
-
-
-
         },
         uploadBefore(file){
 
